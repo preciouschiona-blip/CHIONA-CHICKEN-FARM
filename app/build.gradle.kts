@@ -11,8 +11,8 @@ android {
         applicationId = "com.chiona.chickenfarm"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     // The release key is read from environment variables set by the release workflow.

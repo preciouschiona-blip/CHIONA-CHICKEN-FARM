@@ -52,6 +52,23 @@ class MainActivity : Activity() {
         runOnUiThread { web.evaluateJavascript(code, null) }
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 31 && resultCode == RESULT_OK) {
+            val uri = data?.data ?: return
+            Thread {
+                try {
+                    val text = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                    if (text.length > 30_000_000) js("toast('That file is too large to be a backup')")
+                    else js("window.__backupText(" + org.json.JSONObject.quote(text) + ")")
+                } catch (e: Exception) {
+                    js("toast('Could not read that file')")
+                }
+            }.start()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         js("window.__resume && window.__resume()")

@@ -241,7 +241,7 @@ function fieldHtml(f,i){
  return `<label class="f">${esc(f.l)}<input type="${type}" ${f.t==='num'?'inputmode="decimal"':''} value="${esc(v)}" ${f.ph?`placeholder="${esc(f.ph)}"`:''} oninput="F.vals['${f.k}']=this.value"></label>`}
 function drawForm(){
  const s=$('#sheet');const old=s.querySelector('.pb');const st=old?old.scrollTop:0;s.className='on';
- s.innerHTML=`<div class="bd" onclick="closeSheet()"></div><div class="pn" role="dialog" aria-modal="true"><div class="ph"><b>${esc(F.title)}</b><button onclick="closeSheet()" aria-label="Close">×</button></div><div class="pb">${F.note?`<p class="nt">${esc(F.note)}</p>`:''}${F.fields.map((f,i)=>(!f.showIf||F.vals[f.showIf[0]]===f.showIf[1])?fieldHtml(f,i):'').join('')}</div><div class="pf">${F.danger?`<button class="btn rd" onclick="F.danger.fn()">${esc(F.danger.label)}</button>`:''}<button class="btn pri" onclick="submitForm()">${esc(F.saveLabel||'Save')}</button></div></div>`;
+ s.innerHTML=`<div class="bd" onclick="closeSheet()"></div><div class="pn" role="dialog" aria-modal="true"><div class="ph"><b>${esc(F.title)}</b><button onclick="closeSheet()" aria-label="Close">×</button></div><div class="pb">${F.note?`<p class="nt">${esc(F.note)}</p>`:''}${F.fields.map((f,i)=>(!f.showIf||F.vals[f.showIf[0]]===f.showIf[1])?fieldHtml(f,i):'').join('')}</div><div class="pf">${F.danger?`<button class="btn rd" onclick="F.danger.fn()">${esc(F.danger.label)}</button>`:''}${F.alt?`<button class="btn" onclick="F.alt.fn()">${esc(F.alt.label)}</button>`:''}<button class="btn pri" onclick="submitForm()">${esc(F.saveLabel||'Save')}</button></div></div>`;
  const nb=s.querySelector('.pb');if(nb)nb.scrollTop=st}
 function setV(i,v){const f=F.fields[i];F.vals[f.k]=v;if(f.on)f.on(v,F.vals);drawForm()}
 function closeSheet(){const s=$('#sheet');s.className='';s.innerHTML='';F=null}
@@ -529,13 +529,143 @@ function stockForm(id){const s=id?db.c.stock.find(x=>x.id===id):null;
 VIEWS.stock=()=>hd('Stock and feed',`<button class="btn pri" onclick="stockForm()">${svg('plus',16,2.6)} Add</button>`)+`<div class="list">${live('stock').map(s=>`<button class="li" onclick="stockForm('${s.id}')"><div class="fl"><div class="b">${esc(s.name)}</div><div class="sm mu">${s.daily?'Uses '+N(s.daily)+' '+esc(s.unit)+' a day':'No daily use set'}</div></div><div style="text-align:right"><div class="b tab">${N(s.qty)} ${esc(s.unit||'')}</div>${s.daily?`<div class="sm ${s.qty/s.daily<=3?'b':'mu'}" style="${s.qty/s.daily<=3?'color:var(--ai)':''}">${Math.floor(s.qty/s.daily)} days left</div>`:''}</div></button>`).join('')||'<div class="empty">Add feed, medicine and other stock. Tap an item to update what is left.</div>'}</div>`;
 
 /* reports & backup */
-function monthReport(ym){const a=monthTx(ym),p=splitPct();const lines=[S().farmName+' – '+monthName(ym),'Income: '+M(sumT(a,'in')),'Expenses: '+M(sumT(a,'out')),'Profit: '+M(profitOf(ym)),'Eggs recorded: '+N(live('daily').filter(r=>r.date.slice(0,7)===ym).reduce((s,r)=>s+(r.eggs||0),0)),'Birds now: '+N(activeFlocks().reduce((s,f)=>s+curCount(f),0)),'','Split of profit:'];SPLIT.forEach(s=>lines.push(' '+s[1]+' '+p[s[0]]+'%: '+N(Math.max(0,profitOf(ym))*p[s[0]]/100)));return lines.join('\n')}
+/* ---------- PDF writer (plain PDF 1.4, built-in Helvetica) ---------- */
+const WR=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const WB=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+function tw(s,b,sz){const t=b?WB:WR;let w=0;for(const ch of String(s)){const c=ch.charCodeAt(0);w+=(c>=32&&c<=126?t[c-32]:556)}return w*sz/1000}
+function pdfStr(s){let o='';for(const ch of String(s)){let c=ch.charCodeAt(0);if(c===0x2013||c===0x2014||c===0x2212)c=45;else if(c===0x2018||c===0x2019)c=39;else if(c===0x201C||c===0x201D)c=34;else if(c===0x2022)c=183;else if(c<32||c>255)c=63;const k=String.fromCharCode(c);o+=(c===40||c===41||c===92)?'\\'+k:k}return o}
+function wrapTxt(s,wd,b,sz){const out=[];String(s).split('\n').forEach(par=>{let line='';par.split(' ').forEach(word=>{while(tw(word,b,sz)>wd&&word.length>1){let k=word.length-1;while(k>1&&tw(word.slice(0,k),b,sz)>wd)k--;if(line){out.push(line);line=''}out.push(word.slice(0,k));word=word.slice(k)}const t=line?line+' '+word:word;if(tw(t,b,sz)<=wd||!line)line=t;else{out.push(line);line=word}});out.push(line)});return out}
+function buildPdf(rep){
+ const PW=595,PH=842,MX=40,MT=44,MB=56,CW=PW-2*MX;
+ const INK='0.082 0.133 0.102 rg',MUT='0.333 0.392 0.357 rg',GRN='0.106 0.42 0.263 rg',WHT='1 1 1 rg',GS='0.882 0.945 0.906 rg',ZEB='0.965 0.973 0.965 rg',LN='0.867 0.894 0.867 rg',RED='0.702 0.149 0.118 rg';
+ const pages=[];let ops,y;
+ const newPage=()=>{ops=[];pages.push(ops);y=PH-MT;ops.push(`${GRN} 0 ${PH-8} ${PW} 8 re f`)};
+ const text=(x,yy,s,sz,bold,col,al,wd)=>{let xx=x;if(al==='r')xx=x+wd-tw(s,bold,sz);else if(al==='c')xx=x+(wd-tw(s,bold,sz))/2;ops.push(`BT /F${bold?2:1} ${sz} Tf ${col||INK} ${xx.toFixed(2)} ${yy.toFixed(2)} Td (${pdfStr(s)}) Tj ET`)};
+ const rect=(x,yy,w,h,col)=>ops.push(`${col} ${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+ const need=h=>{if(y-h<MB)newPage()};
+ newPage();
+ text(MX,y-4,(rep.farm||'').toUpperCase(),9,true,MUT);y-=26;
+ text(MX,y-10,rep.title,22,true,INK);y-=30;
+ if(rep.sub){text(MX,y-2,rep.sub,11,false,MUT);y-=16}
+ text(MX,y-2,'Prepared '+fmtD(today())+' by '+(rep.by||''),9,false,MUT);y-=20;
+ rect(MX,y,CW,1.2,LN);y-=16;
+ (rep.blocks||[]).forEach(bl=>{
+  if(bl.pb){newPage();return}
+  if(bl.gap){y-=bl.gap;return}
+  if(bl.h){need(90);y-=8;text(MX,y-12,bl.h,13,true,GRN);y-=20;rect(MX,y,CW,0.8,LN);y-=8;return}
+  if(bl.p){const ls=wrapTxt(bl.p,CW,false,10);need(ls.length*13+6);ls.forEach(l=>{text(MX,y-10,l,10,false,MUT);y-=13});y-=6;return}
+  if(bl.kv){bl.kv.forEach((r,i)=>{need(20);if(i%2===0)rect(MX,y-17,CW,19,ZEB);text(MX+8,y-12,r[0],10.5,false,INK);text(MX,y-12,r[1],10.5,true,r[2]==='neg'?RED:INK,'r',CW-8);y-=19});y-=8;return}
+  if(bl.t){
+   const T=bl.t,ws=T.w.map(f=>f*CW),pad=6;
+   const rowH=(cells,bold)=>{let m=1;cells.forEach((c,i)=>{m=Math.max(m,wrapTxt(c,ws[i]-2*pad,bold,9.5).length)});return m*12+8};
+   const drawHead=()=>{const h=rowH(T.head,true);need(h+30);rect(MX,y-h,CW,h,GRN);let x=MX;T.head.forEach((c,i)=>{const ls=wrapTxt(c,ws[i]-2*pad,true,9.5);ls.forEach((l,k)=>text(x+pad,y-12-k*12,l,9.5,true,WHT,T.al[i],ws[i]-2*pad));x+=ws[i]});y-=h};
+   drawHead();
+   const drawRow=(cells,i,bold,foot)=>{const h=rowH(cells,bold);if(y-h<MB){newPage();drawHead()}if(foot)rect(MX,y,CW,1,INK);else if(i%2===1)rect(MX,y-h,CW,h,ZEB);let x=MX;cells.forEach((c,k)=>{wrapTxt(c,ws[k]-2*pad,bold,9.5).forEach((l,j)=>text(x+pad,y-12-j*12,l,9.5,bold,INK,T.al[k],ws[k]-2*pad));x+=ws[k]});y-=h};
+   T.rows.forEach((r,i)=>drawRow(r,i,false,false));
+   if(T.foot)drawRow(T.foot,0,true,true);
+   y-=10;return}
+ });
+ const n=pages.length;
+ pages.forEach((p,i)=>{ops=p;rect(MX,36,CW,0.8,LN);text(MX,24,'CHIONA CHICKEN FARM',8.5,true,MUT);text(MX,24,'Page '+(i+1)+' of '+n,8.5,false,MUT,'r',CW)});
+ let out='%PDF-1.4\n';const off=[];
+ const add=(k,b)=>{off[k]=out.length;out+=k+' 0 obj\n'+b+'\nendobj\n'};
+ add(1,'<< /Type /Catalog /Pages 2 0 R >>');
+ add(2,'<< /Type /Pages /Kids ['+pages.map((_,i)=>(5+i*2)+' 0 R').join(' ')+'] /Count '+n+' >>');
+ add(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+ add(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ pages.forEach((p,i)=>{const c=p.join('\n');add(5+i*2,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW+' '+PH+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+(6+i*2)+' 0 R >>');add(6+i*2,'<< /Length '+c.length+' >>\nstream\n'+c+'\nendstream')});
+ const cnt=4+n*2,xr=out.length;out+='xref\n0 '+(cnt+1)+'\n0000000000 65535 f \n';
+ for(let k=1;k<=cnt;k++)out+=String(off[k]).padStart(10,'0')+' 00000 n \n';
+ out+='trailer\n<< /Size '+(cnt+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+ return btoa(out)}
+
+/* ---------- saving files ---------- */
+const b64txt=t=>btoa(unescape(encodeURIComponent(t)));
+function saveOut(name,mime,b64,share){
+ if(window.Android&&Android.saveFile){
+  const r=Android.saveFile(name,mime,b64);
+  if(r==='perm'){toast('Allow storage access, then tap again');return}
+  if(!r){toast('Could not save the file');return}
+  if(share){Android.shareFile(r,mime,name);return}
+  form({title:'Saved',note:'Saved in your Downloads folder, inside "Chiona Chicken Farm": '+name,fields:[],saveLabel:'Open',alt:{label:'Share',fn:()=>Android.shareFile(r,mime,name)},save:()=>{Android.openFile(r,mime);return false}});
+ }else{
+  const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u],{type:mime}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('Saved '+name)}}
+
+/* ---------- report contents ---------- */
+const mname=ym=>monthName(ym);
+const tbl=(head,w,al,rows,foot,empty)=>rows.length?{t:{head:head,w:w,al:al,rows:rows,foot:foot||null}}:{p:empty||'No records.'};
+function repMonthly(ym){
+ const a=monthTx(ym),inc=sumT(a,'in'),exp=sumT(a,'out'),pr=inc-exp,p=splitPct();
+ const dm=live('daily').filter(r=>r.date.slice(0,7)===ym),sm=k=>dm.reduce((s,r)=>s+(r[k]||0),0);
+ const birds=activeFlocks().reduce((s,f)=>s+curCount(f),0);
+ const grp=(type,key)=>{const m={};a.filter(t=>t.type===type).forEach(t=>{const k=key(t);m[k]=(m[k]||0)+t.amount});return Object.keys(m).sort((x,y)=>m[y]-m[x]).map(k=>[k,N(m[k])])};
+ const uses=live('uses').filter(u=>u.date.slice(0,7)===ym);
+ return [{h:'Summary'},{kv:[['Income',M(inc)],['Expenses',M(exp)],['Profit',M(pr),pr<0?'neg':'']
+ ,['Eggs collected',N(sm('eggs'))],['Eggs broken or cracked',N(sm('broken'))],['Birds that died',N(sm('deaths'))],['Feed given (kg)',N(sm('feed'))],['Birds on the farm now',N(birds)]]},
+ {h:'Income by source'},tbl(['Source','Amount ('+cur()+')'],[.7,.3],['l','r'],grp('in',t=>t.item||'Other'),['Total',N(inc)],'No income recorded this month.'),
+ {h:'Expenses by category'},tbl(['Category','Amount ('+cur()+')'],[.7,.3],['l','r'],grp('out',t=>t.cat||'Other'),['Total',N(exp)],'No expenses recorded this month.'),
+ {h:'How the profit is used'},pr>0?{t:{head:['Use','Share','Amount','Used','Left'],w:[.34,.1,.19,.19,.18],al:['l','r','r','r','r'],rows:SPLIT.map(s=>{const al=pr*p[s[0]]/100,sp=uses.filter(u=>u.bucket===s[0]).reduce((x,u)=>x+u.amount,0);return[s[1],p[s[0]]+'%',N(al),N(sp),N(al-sp)]}),foot:['Total','100%',N(pr),N(uses.reduce((x,u)=>x+u.amount,0)),N(pr-uses.reduce((x,u)=>x+u.amount,0))]}}:{p:'There was no profit to share out this month.'}]}
+function repMoney(ym){
+ const a=monthTx(ym).sort((x,y)=>tdate(x).localeCompare(tdate(y))),inc=sumT(a,'in'),exp=sumT(a,'out');
+ const desc=t=>t.type==='in'?((t.qty?N(t.qty)+' '+(t.item==='Eggs'?'trays of eggs':t.item==='Birds'?'birds':'items'):'Income')+(t.customer?' - '+t.customer:'')):(t.cat||'Expense')+(t.note?' - '+t.note:'');
+ const owed=live('tx').filter(t=>t.type==='in'&&!paid(t)).sort((x,y)=>x.date.localeCompare(y.date));
+ return [{h:'Money in and out'},tbl(['Date','What','Account','In','Out'],[.12,.38,.16,.17,.17],['l','l','l','r','r'],a.map(t=>[fmtS(tdate(t)),desc(t),accName(t.account),t.type==='in'?N(t.amount):'',t.type==='out'?N(t.amount):'']),['','Total','',N(inc),N(exp)],'No money records this month.'),
+ {h:'Balances now'},{kv:ACC.map(x=>[x[1],M(bal(x[0]))]).concat([['Total',M(totalBal())]])},
+ {h:'Owed to the farm'},tbl(['Date','Customer','Amount'],[.2,.5,.3],['l','l','r'],owed.map(t=>[fmtS(t.date),t.customer||'-',N(t.amount)]),['','Total',N(owed.reduce((s,t)=>s+t.amount,0))],'Nobody owes the farm money.')]}
+function repFlocks(ym){
+ const dm=live('daily').filter(r=>r.date.slice(0,7)===ym);
+ const rows=flocks().map(f=>{const r=dm.filter(x=>x.flockId===f.id),sm=k=>r.reduce((s,x)=>s+(x[k]||0),0);return[f.name,f.species,f.purpose,N(curCount(f)),curCount(f)?ageTxt(ageOf(f)).replace(' old',''):'sold out',isEgg(f)?N(sm('eggs')):'-',N(sm('deaths')),N(sm('feed'))]});
+ return [{h:'Flocks in '+mname(ym)},tbl(['Flock','Species','For','Birds','Age','Eggs','Deaths','Feed kg'],[.17,.17,.08,.09,.16,.1,.1,.13],['l','l','l','r','l','r','r','r'],rows,null,'No flocks yet.')]}
+function repVacc(){
+ const bl=[];const fl=flocks();
+ fl.forEach(f=>{const ds=live('vacc').filter(v=>v.flockId===f.id).sort((a,b)=>a.day-b.day);bl.push({h:f.name+' ('+f.species+', '+N(curCount(f))+' birds)'});
+  bl.push(tbl(['Dose','Day','How','Due','Status'],[.34,.08,.2,.14,.24],['l','r','l','l','l'],ds.map(v=>[v.name,String(v.day),v.method||'',fmtS(v.due),v.given?'Given '+fmtS(v.given.date)+(v.given.by?' by '+v.given.by:''):v.due<=today()?'Due or overdue':'Upcoming']),null,'No doses planned.'))});
+ const h=live('treat').sort((a,b)=>b.date.localeCompare(a.date));
+ bl.push({h:'Health log'});bl.push(tbl(['Date','Flock','Entry','Safe to sell'],[.14,.24,.38,.24],['l','l','l','l'],h.map(x=>{const f=flockById(x.flockId);return[fmtS(x.date),f?f.name:'-',x.kind==='sick'?x.n+' sick: '+x.what:x.drug,x.kind==='treatment'&&x.days?fmtS(addD(x.date,x.days)):'-']}),null,'No treatments or sick birds logged.'));
+ bl.push({p:'Vaccine plans are starting templates. Check doses and timing with your vet or the vaccine label.'});
+ return fl.length?bl:[{p:'No flocks yet.'}]}
+function repIncu(){
+ const b=live('batches').sort((x,y)=>y.set.localeCompare(x.set));
+ return [{h:'Egg batches'},tbl(['Batch','Species','Set on','Eggs','Days','Candling','Result'],[.1,.17,.13,.09,.08,.2,.23],['l','l','l','r','r','l','l'],b.map(x=>[x.name,x.species,fmtS(x.set),N(x.eggs),String(x.days),(x.candle||[]).map(c=>'day '+c.day+': '+c.n).join(', ')||'-',x.hatched?(x.hatched.count?N(x.hatched.count)+' hatched ('+Math.round(x.hatched.count/x.eggs*100)+'%)':'No hatch'):'In incubator, day '+Math.max(1,diff(today(),x.set)+1)]),null,'No egg batches yet.')]}
+const REPS=[
+ ['monthly','Monthly summary','Income, expenses, profit and how it was used',true,m=>repMonthly(m)],
+ ['money','Money statement','Every sale and expense, balances and who owes you',true,m=>repMoney(m)],
+ ['flocks','Flock report','Birds, eggs, deaths and feed for each flock',true,m=>repFlocks(m)],
+ ['vacc','Vaccine and health record','Vaccine plans, doses given and treatments',false,()=>repVacc()],
+ ['incu','Incubator report','All egg batches and hatch results',false,()=>repIncu()],
+ ['all','Complete farm report','All of the above in one file',true,m=>[].concat(repMonthly(m),[{pb:1}],repMoney(m),[{pb:1}],repFlocks(m),[{pb:1}],repVacc(),[{pb:1}],repIncu())]];
+function makeReport(id,share){
+ const r=REPS.find(x=>x[0]===id);if(!r)return;
+ try{
+  const pdf=buildPdf({farm:S().farmName||'',title:r[1],sub:r[3]?mname(RM):'Up to '+fmtD(today()),by:S().name,blocks:r[4](RM)});
+  saveOut(r[1].replace(/\s+/g,'-')+(r[3]?'-'+RM:'-'+today())+'.pdf','application/pdf',pdf,share);
+ }catch(e){toast('Could not make the report: '+e.message)}}
+function csvRows(rows){return '﻿'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\r\n')}
+function csvMoney(ym){const rows=[['date','type','category','item','qty','amount','account','customer','paid','note']];live('tx').filter(t=>!ym||tdate(t).slice(0,7)===ym).sort((a,b)=>tdate(a).localeCompare(tdate(b))).forEach(t=>rows.push([tdate(t),t.type,t.cat||'',t.item||'',t.qty||'',t.amount,accName(t.account),t.customer||'',paid(t)?'yes':'no',t.note||'']));return csvRows(rows)}
+function csvDaily(){const rows=[['date','flock','eggs','broken','deaths','feed_kg','entered_by']];live('daily').sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>{const f=flockById(r.flockId);rows.push([r.date,f?f.name:'',r.eggs||0,r.broken||0,r.deaths||0,r.feed||0,r.by||''])});return csvRows(rows)}
+function saveCsv(kind,share){const m={money:['Money-'+RM+'.csv',()=>csvMoney(RM)],moneyAll:['Money-all.csv',()=>csvMoney('')],daily:['Daily-records.csv',csvDaily]}[kind];saveOut(m[0],'text/csv',b64txt(m[1]()),share)}
+function backupNow(share){S().lastBackup=Date.now();save();saveOut('ChionaFarm-backup-'+today()+'.json','application/json',b64txt(JSON.stringify(db)),share);if(!(window.Android&&Android.saveFile)){}}
+function restoreConfirm(txt){let j;try{j=JSON.parse(txt);if(!j.c||!j.s||!j.s.role)throw 0}catch(e){toast('That is not a valid backup');return false}
+ const n=['flocks','daily','tx','vacc'].map(k=>(j.c[k]||[]).filter(r=>!r.del).length);
+ ask('This backup has '+n[0]+' flocks, '+n[1]+' daily records, '+n[2]+' money records and '+n[3]+' vaccine doses. Restoring replaces everything on this phone.','Restore',()=>{COLS.forEach(k=>{if(!j.c[k])j.c[k]=[]});if(!j.sync)j.sync=blank().sync;j.dev=db.dev;db=j;save();tab('home');toast('Backup restored');if(syncOn())sync()},'Restore this backup?');return true}
+function restoreForm(){form({title:'Restore from pasted text',note:'Paste the text of a backup file. This replaces everything on this phone.',fields:[{k:'txt',l:'Backup text',req:1}],saveLabel:'Check backup',save:v=>{closeSheet();restoreConfirm(v.txt);return false}})}
+window.__backupText=t=>restoreConfirm(t);
+function pickBackup(){if(window.Android&&Android.pickBackup)Android.pickBackup();else restoreForm()}
+function shiftR(n){const a=RM.split('-').map(Number);const d=new Date(a[0],a[1]-1+n,1);RM=d.getFullYear()+'-'+pad(d.getMonth()+1);render()}
 function shareText(title,text){if(window.Android&&Android.share)Android.share(title,text);else if(navigator.share)navigator.share({title:title,text:text});else toast('Sharing needs the phone app')}
-function csvAll(){const rows=[['date','type','category','item','qty','amount','account','customer','paid','note']];live('tx').sort((a,b)=>tdate(a).localeCompare(tdate(b))).forEach(t=>rows.push([tdate(t),t.type,t.cat||'',t.item||'',t.qty||'',t.amount,accName(t.account),t.customer||'',paid(t)?'yes':'no',t.note||'']));return rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')}
-function restoreForm(){form({title:'Restore from backup',note:'Paste a backup you saved earlier. This replaces everything on this phone.',fields:[{k:'txt',l:'Backup text',req:1}],saveLabel:'Restore',save:v=>{try{const j=JSON.parse(v.txt);if(!j.c||!j.s)throw 0;COLS.forEach(k=>{if(!j.c[k])j.c[k]=[]});j.dev=db.dev;db=j;save();toast('Restored');tab('home')}catch(e){toast('That is not a valid backup');return false}}})}
-VIEWS.reports=()=>hd('Reports and backup')+`<div class="card"><h2>${monthName(PM)} report</h2><pre style="white-space:pre-wrap;font-size:13px;line-height:1.5;margin:8px 0 0">${esc(monthReport(monthKey()))}</pre><button class="btn pri blk" onclick="shareText(S().farmName+' report',monthReport(monthKey()))">Share this month's report</button></div>
- <div class="card"><h2>Money records</h2><div class="sm mu" style="margin:4px 0 0">Every sale and expense as a table you can open in Excel.</div><button class="btn out blk" onclick="shareText('Money records',csvAll())">Share as CSV</button></div>
- <div class="card"><h2>Back up everything</h2><div class="sm mu" style="margin:4px 0 0">Save this text somewhere safe, for example in a message to yourself. It restores the whole farm record on a new phone.</div><button class="btn out blk" onclick="shareText('Farm backup',JSON.stringify(db))">Back up</button><button class="btn blk" onclick="restoreForm()" style="margin-top:8px">Restore from a backup</button></div>`;
+let RM=monthKey();
+VIEWS.reports=()=>{
+ const a=monthTx(RM),inc=sumT(a,'in'),exp=sumT(a,'out'),lb=S().lastBackup,days=lb?Math.floor((Date.now()-lb)/864e5):null;
+ const rb=(lab,fn,cls)=>`<button class="btn ${cls||''}" style="min-height:44px;font-size:13px" onclick="${fn}">${lab}</button>`;
+ return hd('Reports and backup')+`<div class="row sp"><button class="btn" style="min-height:44px" onclick="shiftR(-1)" aria-label="Earlier month">‹</button><b>${monthName(RM)}</b><button class="btn" style="min-height:44px" onclick="shiftR(1)" aria-label="Later month">›</button></div>
+ <div class="card"><div class="row" style="gap:10px"><div class="fl"><div class="sm mu b">Income</div><div class="b tab">${N(inc)}</div></div><div class="fl"><div class="sm mu b">Expenses</div><div class="b tab">${N(exp)}</div></div><div class="fl"><div class="sm mu b">Profit</div><div class="b tab" style="color:${inc-exp<0?'var(--rd)':'var(--gr)'}">${N(inc-exp)}</div></div></div></div>
+ <div class="cap">PDF reports</div>${REPS.map(r=>`<div class="card" style="margin-top:8px"><div class="b">${r[1]}</div><div class="sm mu" style="margin:2px 0 8px">${r[2]}${r[3]?' · '+monthName(RM):''}</div><div class="row" style="gap:8px">${rb('Save PDF',`makeReport('${r[0]}',false)`,'pri fl')}${rb('Share',`makeReport('${r[0]}',true)`,'out fl')}</div></div>`).join('')}
+ <div class="cap">Spreadsheets (CSV, opens in Excel)</div><div class="list">${[['money','Money records, '+monthName(RM)],['moneyAll','All money records'],['daily','All daily records (eggs, deaths, feed)']].map(c=>`<div class="li" style="min-height:56px"><span class="fl b" style="font-size:14px">${c[1]}</span>${rb('Save',`saveCsv('${c[0]}',false)`)}${rb('Share',`saveCsv('${c[0]}',true)`)}</div>`).join('')}</div>
+ <div class="cap">Backup</div><div class="card" style="margin-top:0"><div class="al ${lb&&days<7?'g':'a'}" style="display:block;margin:0 0 10px;font-size:13px;font-weight:600">${lb?'Last backup: '+new Date(lb).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+(days>=7?' ('+days+' days ago). Save a new one.':''):'No backup saved yet. Save one now.'}</div>
+ <div class="sm mu" style="line-height:1.45">A backup file holds the whole farm record and the farm code. Keep it private. Save it, then copy it to Google Drive or send it to yourself on WhatsApp.</div>
+ <div class="row" style="gap:8px;margin-top:10px">${rb('Save backup file','backupNow(false)','pri fl')}${rb('Share','backupNow(true)','out fl')}</div>
+ <button class="btn blk" style="min-height:44px" onclick="pickBackup()">Restore from a file</button><button class="btn blk" style="min-height:44px;margin-top:6px;border:0;background:none;color:var(--mu)" onclick="restoreForm()">Restore by pasting text</button></div>`};
 
 /* team and sync */
 function syncSetup(){form({title:'Set up sharing',note:'Paste the web address of your free Firebase Realtime Database. It looks like https://your-project-default-rtdb.firebaseio.com',fields:[{k:'url',l:'Database address',v:db.sync.url,req:1}],saveLabel:'Turn on sharing',save:v=>{const u=cleanUrl(v.url);if(!u){toast('That does not look like a web address starting with https://');return false}db.sync.url=u;db.sync.pushed=0;db.sync.metaPushed=0;db.sync.err='';S().ua=Date.now();save();sync();render();toast('Sharing turned on')}})}
@@ -572,7 +702,7 @@ VIEWS.more=()=>{const own=isOwner();const due=vaccDue().length,low=live('stock')
  ${perm('money')?it('people','var(--gs)','var(--gi)','Sales and customers',owed?owed+' owe you':'',"go('cust')"):''}
  ${own?it('trend','var(--gs)','var(--gi)','Forecast','week and month',"go('fc')")+it('pie','var(--gs)','var(--gi)','Profit and its use','the split',"go('profit')")+it('doc','var(--gs)','var(--gi)','Reports and backup','share, restore',"go('reports')"):''}</div>
  <div class="cap">Farm</div><div class="list">${it('sync','var(--tr)','var(--ink)','Team and sync',syncLabel(),"go('team')")}${it('gear','var(--tr)','var(--ink)','Settings',cur()+' · '+(S().remind||'20:00'),'settingsForm()')}</div>
- <div class="sm mu" style="margin-top:14px;text-align:center">CHIONA CHICKEN FARM · version 1.0</div>`};
+ <div class="sm mu" style="margin-top:14px;text-align:center">CHIONA CHICKEN FARM · version 1.1</div>`};
 
 render();
 if(S().role){applyReminder();if(syncOn())sync()}
