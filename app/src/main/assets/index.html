@@ -123,7 +123,8 @@ trend:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
 pie:'<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>',
 doc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
 sync:'<path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18 2v4h-4M6 22v-4h4"/>',
-gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'
+bell:'<path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16z"/><path d="M10 21h4"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'
 };
 const svg=(n,w=22,sw=2)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -135,14 +136,14 @@ function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.c){COL
 let db=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 const live=c=>db.c[c].filter(r=>!r.del);
-function put(c,r,quiet){r.ua=Date.now();const a=db.c[c];const i=a.findIndex(x=>x.id===r.id);if(i<0)a.push(r);else a[i]=r;save();if(!quiet)queueSync();return r}
+function put(c,r,quiet){r.ua=Date.now();const a=db.c[c];const i=a.findIndex(x=>x.id===r.id);if(i<0)a.push(r);else a[i]=r;save();if(!quiet)queueSync();schedSoon();return r}
 function del(c,id){const r=db.c[c].find(x=>x.id===id);if(r){r.del=1;put(c,r)}}
 const S=()=>db.s;
 const isOwner=()=>S().role==='owner';
 const perm=k=>isOwner()||!!((S().perms||{})[k]);
 const cur=()=>S().currency||'MWK';
 const M=n=>cur()+' '+N(n);
-function saveSettings(){S().ua=Date.now();save();queueSync()}
+function saveSettings(){S().ua=Date.now();save();queueSync();schedSoon()}
 
 /* ---------- species, vaccine and incubation templates ---------- */
 const SP=['Broiler','Layer','Local / free-range','Kuroiler','Duck','Guinea fowl','Turkey','Quail'];
@@ -228,7 +229,7 @@ function readInvite(code){try{const j=JSON.parse(decodeURIComponent(escape(atob(
 function cleanUrl(u){u=String(u||'').trim().replace(/\/+$/,'');return /^https:\/\/[^\s/]+\.[^\s]+$/.test(u)?u:''}
 const syncLabel=()=>{if(!syncOn())return 'This phone only';if(db.sync.err)return 'Not syncing';if(!db.sync.last)return 'Waiting to sync';const m=Math.round((Date.now()-db.sync.last)/6e4);return m<1?'Synced just now':m<60?'Synced '+m+' min ago':'Synced '+Math.round(m/60)+' h ago'};
 setInterval(()=>{if(syncOn())sync()},60000);
-window.__resume=()=>{if(syncOn())sync()};
+window.__resume=()=>{if(syncOn())sync();pushSchedule()};
 
 /* ---------- sheet forms ---------- */
 let F=null;
@@ -301,7 +302,59 @@ async function finishHelper(){
  toast('Joining…');await sync();
  if(db.sync.err&&!db.sync.last){const e=db.sync.err;db.s={};db.sync=blank().sync;save();render();toast('Could not join: '+e);return}
  applyReminder();tab('home');toast('Joined '+(S().farmName||'the farm'))}
-function applyReminder(){const t=(S().remind||'20:00').split(':');if(window.Android&&Android.setReminder)Android.setReminder(num(t[0]),num(t[1]),!!S().remindOn)}
+function applyReminder(){pushSchedule()}
+
+
+/* ---------- reminders and alarms (kept on each phone, not shared) ---------- */
+const REM_TYPES=[['off','Off'],['notif','Notification'],['alarm','Alarm']];
+function remCfg(){
+ if(!S().rem){S().rem={routine:[
+  {id:'am',title:'Morning feeding',text:'Time to feed the birds.',time:'06:30',type:'alarm'},
+  {id:'egg',title:'Collect eggs',text:'Collect the eggs and note the number.',time:'14:00',type:'notif'},
+  {id:'pm',title:'Evening feeding',text:'Time to feed the birds.',time:'16:30',type:'alarm'},
+  {id:'rec',title:'Record today\'s farm records',text:'Enter today\'s eggs, feed and deaths.',time:S().remind||'20:00',type:S().remindOn===false?'off':'notif'}],
+  events:{vacc:'notif',incu:'notif',safe:'notif',stock:'notif'},morning:'07:00'};save()}
+ return S().rem}
+const EVT=[['vacc','Vaccine due','On the morning each dose is due'],['incu','Incubator steps','Candling, stop turning, and hatch day'],['safe','Safe to sell','When a treatment withdrawal ends'],['stock','Low stock','Every morning while feed is nearly finished']];
+const remSummary=()=>{const r=remCfg();const n=r.routine.filter(x=>x.type!=='off').length;const al=r.routine.filter(x=>x.type==='alarm').length+Object.values(r.events).filter(x=>x==='alarm').length;return n+' daily'+(al?' · '+al+' alarm'+(al>1?'s':''):'')};
+const hash36=str=>{let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return Math.abs(h).toString(36)};
+function buildSchedule(){
+ const R=remCfg(),out=[],t=today();const kind=ty=>ty==='alarm'?'alarm':'reminder';
+ R.routine.filter(x=>x.type!=='off'&&/^\d{1,2}:\d{2}$/.test(x.time||'')).forEach(x=>out.push({id:'r_'+x.id,title:x.title,text:x.text||x.title,kind:kind(x.type),time:x.time,days:[0,1,2,3,4,5,6],date:null}));
+ const mt=/^\d{1,2}:\d{2}$/.test(R.morning||'')?R.morning:'07:00';
+ const add=(key,date,title,text)=>{const ty=R.events[key];if(!ty||ty==='off'||date<t||date>addD(t,30))return;out.push({id:'e_'+key+'_'+hash36(title+date),title:title,text:text,kind:kind(ty),time:mt,days:[],date:date})};
+ activeFlocks().forEach(f=>{live('vacc').filter(v=>v.flockId===f.id&&!v.given).forEach(v=>add('vacc',v.due,'Vaccine due: '+v.name,f.name+' · '+N(curCount(f))+' birds · '+(v.method||'')));const w=withdrawal(f);if(w)add('safe',w,'Safe to sell: '+f.name,'The treatment withdrawal period has ended.')});
+ live('batches').filter(b=>!b.hatched).forEach(b=>{[7,14].filter(d=>d<b.days-3).forEach(d=>add('incu',addD(b.set,d-1),'Candle the eggs: '+b.name,'Day '+d+' of '+b.days+'. Count the fertile eggs.'));add('incu',addD(b.set,b.days-4),'Stop turning eggs: '+b.name,'Day '+(b.days-3)+'. Raise the humidity.');add('incu',addD(b.set,b.days-1),'Hatch day: '+b.name,'Day '+b.days+'. Eggs should hatch today.')});
+ live('stock').filter(x=>x.daily>0&&x.qty/x.daily<=3).forEach(x=>[0,1,2].forEach(i=>add('stock',addD(t,i),x.name+' running low',N(x.qty)+' '+(x.unit||'')+' left in the store.')));
+ return out}
+let schedT=null;
+function pushSchedule(){if(!S().role)return;if(window.Android&&Android.syncSchedule){try{Android.syncSchedule(JSON.stringify(buildSchedule()))}catch(e){}}}
+function schedSoon(){clearTimeout(schedT);schedT=setTimeout(pushSchedule,3000)}
+function setRoutineType(id,ty){const r=remCfg().routine.find(x=>x.id===id);if(r){r.type=ty;save();pushSchedule();render()}}
+function setEventType(k,ty){remCfg().events[k]=ty;save();pushSchedule();render()}
+function routineForm(id){const R=remCfg(),x=id?R.routine.find(q=>q.id===id):null;
+ form({title:x?'Edit reminder':'Add a reminder',fields:[{k:'title',l:'What to remind you about',v:x?x.title:'',req:1},{k:'time',l:'Time every day (24 hour, for example 06:30)',v:x?x.time:'',ph:'06:30',req:1},{k:'type',l:'How it reminds you',t:'chips',o:REM_TYPES.map(a=>a[1]),v:x?(REM_TYPES.find(a=>a[0]===x.type)||[0,'Notification'])[1]:'Notification'}],
+ danger:x?{label:'Delete',fn:()=>{R.routine=R.routine.filter(q=>q.id!==id);save();pushSchedule();closeSheet();render()}}:null,
+ save:v=>{const m=v.time.trim().match(/^(\d{1,2}):(\d{2})$/);if(!m||+m[1]>23||+m[2]>59){toast('Write the time like 06:30');return false}
+  const ty=(REM_TYPES.find(a=>a[1]===v.type)||['notif'])[0];const tm=pad(+m[1])+':'+m[2];
+  if(x){x.title=v.title.trim();x.time=tm;x.type=ty;x.text=x.text||x.title}else R.routine.push({id:uid('q'),title:v.title.trim(),text:v.title.trim(),time:tm,type:ty});
+  save();pushSchedule();render()}})}
+function morningForm(){const R=remCfg();form({title:'Morning check time',note:'Vaccine, incubator, safe-to-sell and low-stock reminders come at this time.',fields:[{k:'time',l:'Time (24 hour)',v:R.morning||'07:00',req:1}],save:v=>{const m=v.time.trim().match(/^(\d{1,2}):(\d{2})$/);if(!m||+m[1]>23||+m[2]>59){toast('Write the time like 07:00');return false}R.morning=pad(+m[1])+':'+m[2];save();pushSchedule();render()}})}
+function testRing(alarm){if(window.Android&&Android.testRing)Android.testRing(alarm);else toast('Testing needs the phone app')}
+const segRow=(cur,fn)=>`<div class="seg" style="margin-top:8px">${REM_TYPES.map(a=>`<button class="${cur===a[0]?'on':''}" style="min-height:40px;font-size:13px" onclick="${fn(a[0])}">${a[1]}</button>`).join('')}</div>`;
+function vRem(){
+ const R=remCfg();let st={notif:true,exact:true};try{if(window.Android&&Android.notifStatus)st=JSON.parse(Android.notifStatus())}catch(e){}
+ return hd('Reminders and alarms')+`
+ ${!st.notif?`<div class="al r" style="display:block"><div class="b">Notifications are switched off</div><div class="sm" style="margin:2px 0 8px;line-height:1.4">Reminders and alarms cannot show until you allow notifications for this app.</div><button class="btn" onclick="Android.openNotifSettings()">Open notification settings</button></div>`:''}
+ ${st.notif&&!st.exact?`<div class="al a" style="display:block"><div class="b">Exact timing is off</div><div class="sm" style="margin:2px 0 8px;line-height:1.4">Reminders may come a few minutes late. Alarms still ring on time.</div><button class="btn" onclick="Android.openAlarmSettings()">Allow exact reminders</button></div>`:''}
+ <div class="sm mu" style="line-height:1.45;margin-top:6px">A <b>notification</b> shows on the phone with a sound. An <b>alarm</b> rings like an alarm clock until you tap Done, so you cannot miss it. These settings are for this phone only.</div>
+ <div class="cap">Every day</div>
+ ${R.routine.map(x=>`<div class="card" style="margin-top:8px"><div class="row sp"><button style="border:0;background:none;text-align:left;padding:0;min-height:44px;flex:1" onclick="routineForm('${x.id}')"><div class="b">${esc(x.title)}</div><div class="sm mu tab">${esc(x.time)} every day · tap to edit</div></button></div>${segRow(x.type,t=>`setRoutineType('${x.id}','${t}')`)}</div>`).join('')}
+ <button class="btn out blk" onclick="routineForm()">${svg('plus',16,2.6)} Add a reminder</button>
+ <div class="row sp" style="margin:16px 0 0"><div class="cap" style="margin:0">Farm events</div><button class="btn" style="min-height:40px;font-size:12px" onclick="morningForm()">Morning at ${esc(R.morning||'07:00')}</button></div>
+ ${EVT.map(e=>`<div class="card" style="margin-top:8px"><div class="b">${e[1]}</div><div class="sm mu">${e[2]}</div>${segRow(R.events[e[0]]||'notif',t=>`setEventType('${e[0]}','${t}')`)}</div>`).join('')}
+ <div class="cap">Try it</div><div class="row" style="gap:8px"><button class="btn fl" onclick="testRing(false)">Test notification</button><button class="btn fl" onclick="testRing(true)">Test alarm</button></div>
+ <div class="sm mu" style="margin-top:10px;line-height:1.45">If alarms do not ring when the phone has been idle for a long time, open the phone's Settings, find this app, and set battery use to Unrestricted.</div>`};
 
 /* ---------- tasks ---------- */
 function ensureTasks(){const t=today();const list=S().dailyTasks||[];if(S().lastTasks===t)return;S().lastTasks=t;list.forEach((x,i)=>{const id='t_'+t+'_'+i;if(!db.c.tasks.find(q=>q.id===id))put('tasks',{id:id,date:t,text:x,done:false},true)});save()}
@@ -309,7 +362,7 @@ function toggleTask(id){const r=db.c.tasks.find(x=>x.id===id);if(r){r.done=!r.do
 function addTask(){form({title:'Add a task for today',fields:[{k:'text',l:'Task',req:1},{k:'time',l:'Time (optional)',ph:'15:00'}],save:v=>{put('tasks',{id:uid('t'),date:today(),text:v.text.trim(),time:v.time.trim(),done:false});render()}})}
 
 /* ---------- views ---------- */
-const VIEWS={};
+const VIEWS={};VIEWS.rem=vRem;
 VIEWS.home=()=>{
  const t=today(),fl=activeFlocks();
  const al=[];
@@ -688,9 +741,9 @@ VIEWS.team=()=>{
 
 /* settings */
 function settingsForm(){const own=isOwner();
- form({title:'Settings',fields:[{k:'name',l:'Your name',v:S().name||''}].concat(own?[{k:'farm',l:'Farm name',v:S().farmName||''},{k:'cur',l:'Currency',v:cur()},{k:'tray',l:'Eggs per tray',t:'num',v:S().tray||30},{k:'cash',l:'Cash at start ('+cur()+')',t:'num',v:(S().open||{}).cash||0},{k:'momo',l:'Mobile money at start',t:'num',v:(S().open||{}).momo||0},{k:'bank',l:'Bank at start',t:'num',v:(S().open||{}).bank||0},{k:'tasks',l:'Daily tasks (separate with commas)',v:(S().dailyTasks||[]).join(', ')}]:[]).concat([{k:'rem',l:'Daily reminder time (24 hour)',v:S().remind||'20:00'},{k:'remOn',l:'Daily reminder',t:'chips',o:['On','Off'],v:S().remindOn===false?'Off':'On'}]),
+ form({title:'Settings',fields:[{k:'name',l:'Your name',v:S().name||''}].concat(own?[{k:'farm',l:'Farm name',v:S().farmName||''},{k:'cur',l:'Currency',v:cur()},{k:'tray',l:'Eggs per tray',t:'num',v:S().tray||30},{k:'cash',l:'Cash at start ('+cur()+')',t:'num',v:(S().open||{}).cash||0},{k:'momo',l:'Mobile money at start',t:'num',v:(S().open||{}).momo||0},{k:'bank',l:'Bank at start',t:'num',v:(S().open||{}).bank||0},{k:'tasks',l:'Daily tasks (separate with commas)',v:(S().dailyTasks||[]).join(', ')}]:[]),
  save:v=>{S().name=v.name.trim()||S().name;if(own){S().farmName=v.farm.trim()||S().farmName;S().currency=(v.cur||'MWK').trim().toUpperCase();S().tray=num(v.tray)||30;S().open={cash:num(v.cash),momo:num(v.momo),bank:num(v.bank)};S().dailyTasks=v.tasks.split(',').map(x=>x.trim()).filter(Boolean)}
-  const r=v.rem.split(':');S().remind=pad(num(r[0])%24)+':'+pad(num(r[1])%60);S().remindOn=v.remOn!=='Off';saveSettings();applyReminder();render();toast('Settings saved')}})}
+  saveSettings();render();toast('Settings saved')}})}
 
 /* more */
 VIEWS.more=()=>{const own=isOwner();const due=vaccDue().length,low=live('stock').filter(s=>s.daily>0&&s.qty/s.daily<=3).length,owed=live('tx').filter(t=>t.type==='in'&&!paid(t)).length;
@@ -701,11 +754,11 @@ VIEWS.more=()=>{const own=isOwner();const due=vaccDue().length,low=live('stock')
  ${it('box','var(--gs)','var(--gi)','Stock and feed',low?low+' low':'',"go('stock')",low?'b':'')}
  ${perm('money')?it('people','var(--gs)','var(--gi)','Sales and customers',owed?owed+' owe you':'',"go('cust')"):''}
  ${own?it('trend','var(--gs)','var(--gi)','Forecast','week and month',"go('fc')")+it('pie','var(--gs)','var(--gi)','Profit and its use','the split',"go('profit')")+it('doc','var(--gs)','var(--gi)','Reports and backup','share, restore',"go('reports')"):''}</div>
- <div class="cap">Farm</div><div class="list">${it('sync','var(--tr)','var(--ink)','Team and sync',syncLabel(),"go('team')")}${it('gear','var(--tr)','var(--ink)','Settings',cur()+' · '+(S().remind||'20:00'),'settingsForm()')}</div>
+ <div class="cap">Farm</div><div class="list">${it('bell','var(--as)','var(--ai)','Reminders and alarms',remSummary(),"go('rem')")}${it('sync','var(--tr)','var(--ink)','Team and sync',syncLabel(),"go('team')")}${it('gear','var(--tr)','var(--ink)','Settings',cur(),'settingsForm()')}</div>
  <div class="sm mu" style="margin-top:14px;text-align:center">CHIONA CHICKEN FARM · version 1.1</div>`};
 
 render();
-if(S().role){applyReminder();if(syncOn())sync()}
+if(S().role){pushSchedule();if(syncOn())sync()}
 </script>
 </body>
 </html>

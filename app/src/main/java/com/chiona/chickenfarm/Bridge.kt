@@ -21,9 +21,54 @@ import java.net.URL
 /** The small set of things the web screens may ask the phone to do. */
 class Bridge(private val a: MainActivity) {
 
+    /** Replaces every scheduled reminder and alarm with the list the web screens built. */
     @JavascriptInterface
-    fun setReminder(hour: Int, minute: Int, on: Boolean) {
-        Reminder.set(a, hour, minute, on)
+    fun syncSchedule(json: String) {
+        try {
+            Schedule.sync(a, json)
+        } catch (e: Exception) {
+            // A bad list leaves the old reminders in place.
+        }
+    }
+
+    @JavascriptInterface
+    fun notifStatus(): String {
+        val nm = a.getSystemService(android.app.NotificationManager::class.java)
+        val am = a.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+        val exact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms()
+        return "{\"notif\":" + nm.areNotificationsEnabled() + ",\"exact\":" + exact + "}"
+    }
+
+    @JavascriptInterface
+    fun openNotifSettings() {
+        val i = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, a.packageName)
+        a.startActivity(i)
+    }
+
+    @JavascriptInterface
+    fun openAlarmSettings() {
+        if (Build.VERSION.SDK_INT >= 31) {
+            try {
+                a.startActivity(Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                    .setData(Uri.parse("package:" + a.packageName)))
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    /** Fires a sample reminder or alarm right now so the person can hear and see it. */
+    @JavascriptInterface
+    fun testRing(alarm: Boolean) {
+        if (alarm) {
+            a.startForegroundService(
+                Intent(a, RingService::class.java)
+                    .putExtra("title", "Test alarm")
+                    .putExtra("text", "This is how a farm alarm rings. Tap Done to stop it.")
+            )
+        } else {
+            Notify.post(a, Entry("test", "Test reminder", "This is how a farm reminder looks.", "reminder", 0, 0, emptyList(), null))
+        }
     }
 
     @JavascriptInterface

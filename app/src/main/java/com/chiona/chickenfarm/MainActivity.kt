@@ -15,7 +15,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Reminder.ensureChannel(this)
+        Notify.ensureChannels(this)
 
         web = WebView(this)
         setContentView(web)
