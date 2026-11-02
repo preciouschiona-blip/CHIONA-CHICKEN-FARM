@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CHIONA CHICKEN FARM</title>
+<style>
+:root{--bg:#F1F4F0;--sf:#fff;--ink:#15221A;--mu:#55645B;--ln:#DDE4DD;--gr:#1B6B43;--gs:#E1F1E7;--gi:#14502F;--yo:#E9A820;--as:#FBF0D5;--ai:#5C3D00;--rd:#B3261E;--rs:#FBE7E5;--ri:#7A1710;--tr:#E4EAE3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+#app{position:absolute;inset:0 0 78px 0;overflow-y:auto;padding:22px 20px 24px}
+#app.nonav{bottom:0}
+h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.5px}
+h2{margin:0;font-size:16px;font-weight:800}
+.mu{color:var(--mu)}.sm{font-size:12px}.b{font-weight:700}
+.row{display:flex;align-items:center;gap:10px}.sp{justify-content:space-between}.fl{flex:1;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hd{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.hd h1{font-size:24px}
+.back{width:44px;height:44px;margin-left:-10px;border:0;background:none;display:flex;align-items:center;justify-content:center}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-top:10px}
+.list{background:var(--sf);border:1px solid var(--ln);border-radius:14px;margin-top:6px}
+.li{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:52px;border-bottom:1px solid var(--ln);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.li:last-child{border-bottom:0}
+.cap{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.6px;margin:16px 0 6px;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:var(--gs);color:var(--gr);font-size:12px;font-weight:700;border:0}
+.tag{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--gs);color:var(--gi);white-space:nowrap}
+.tag.a{background:var(--as);color:var(--ai)}.tag.r{background:var(--rs);color:var(--ri)}.tag.g{background:var(--tr);color:#3B4A41}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--ln);background:#fff;font-weight:800;font-size:14px}
+.btn.pri{background:var(--gr);border-color:var(--gr);color:#fff}
+.btn.out{border-color:var(--gr);color:var(--gr)}
+.btn.yo{background:var(--yo);border-color:var(--yo);color:var(--ink)}
+.btn.rd{background:var(--rd);border-color:var(--rd);color:#fff}
+.btn.blk{width:100%;min-height:50px;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--ln);background:#fff;font-weight:700;font-size:13px}
+.chip.on{background:var(--gr);border-color:var(--gr);color:#fff;font-weight:800}
+.chip.dash{border:1px dashed var(--gr);color:var(--gr)}
+.seg{display:flex;gap:4px;background:var(--tr);border-radius:14px;padding:4px;margin-top:10px}
+.seg button{flex:1;min-height:44px;border:0;border-radius:11px;background:none;font-weight:700;color:#3B4A41}
+.seg button.on{background:#fff;color:var(--gr);font-weight:800;box-shadow:0 1px 3px rgba(21,34,26,.15)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.st{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:12px}
+.st .k{font-size:12px;font-weight:700;color:var(--mu)}.st .v{font-size:20px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}.st .n{font-size:12px;color:var(--mu);margin-top:1px}
+.al{display:flex;align-items:center;gap:12px;border-radius:14px;padding:10px 10px 10px 12px;margin-top:8px}
+.al.r{background:var(--rs);color:var(--ri)}.al.a{background:var(--as);color:var(--ai)}.al.g{background:var(--gs);color:var(--gi)}
+.al .dot{width:34px;height:34px;border-radius:17px;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.al.r .dot{background:var(--rd)}.al.a .dot{background:var(--yo);color:var(--ink)}.al.g .dot{background:var(--gr)}
+.al button{min-height:44px;padding:0 14px;border-radius:12px;border:0;background:#fff;font-weight:800;font-size:13px;color:inherit}
+.bar{height:10px;border-radius:5px;background:var(--tr);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--gr)}
+.big{background:var(--gr);color:#fff;border-radius:18px;padding:16px;margin-top:12px}
+.big .v{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.stepper{display:flex;align-items:center;justify-content:space-between;min-height:52px;border-top:1px solid var(--ln)}
+.stepper:first-of-type{border-top:0}
+.stepper .c{display:flex;align-items:center;gap:6px}
+.stepper button{width:44px;height:44px;border-radius:12px;border:1px solid var(--ln);background:#fff;font-size:20px;font-weight:700}
+.stepper button.p{background:var(--gr);border-color:var(--gr);color:#fff}
+.stepper input{width:64px;height:44px;border:1px solid var(--ln);border-radius:12px;text-align:center;font-size:18px;font-weight:800;background:#fff}
+.chk{width:22px;height:22px;accent-color:var(--gr);margin:0}
+nav{position:fixed;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-around;padding:0 6px}
+nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:68px;min-height:52px;border:0;background:none;font-size:11px;font-weight:600;color:var(--mu)}
+nav button.on{color:var(--gr);font-weight:700}
+#sheet{display:none}
+#sheet.on{display:block;position:fixed;inset:0;z-index:20}
+#sheet .bd{position:absolute;inset:0;background:rgba(21,34,26,.45)}
+#sheet .pn{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:#fff;border-radius:20px 20px 0 0;display:flex;flex-direction:column}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 6px;font-size:17px}
+.ph button{width:44px;height:44px;border:0;background:none;font-size:28px;line-height:1;color:var(--mu)}
+.pb{overflow-y:auto;padding:4px 18px 8px}
+.pf{display:flex;gap:10px;padding:10px 18px 18px;border-top:1px solid var(--ln)}
+.pf .btn{flex:1}
+.nt{font-size:13px;color:var(--mu);line-height:1.45;margin:4px 0 8px}
+label.f{display:block;margin-top:10px;font-size:12px;font-weight:700;color:var(--mu)}
+label.f input,label.f select{display:block;width:100%;height:48px;margin-top:4px;border:1px solid var(--ln);border-radius:12px;padding:0 12px;background:#fff;font-size:16px;font-weight:600;color:var(--ink)}
+.fchips{margin-top:10px}.fchips>span{display:block;font-size:12px;font-weight:700;color:var(--mu);margin-bottom:4px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#15221A;color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:14px;z-index:30;max-width:86%;text-align:center;display:none}
+.setup{padding-top:30px}
+.empty{text-align:center;color:var(--mu);padding:26px 10px;line-height:1.5}
+.pt{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:12px;background:rgba(255,255,255,.25)}
+.sw{width:12px;height:12px;border-radius:3px;flex:none}
+.av{width:36px;height:36px;border-radius:18px;background:var(--tr);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.tab{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="nav"></nav>
+<div id="sheet"></div>
+<div id="toast" role="status"></div>
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>iso(new Date());
+const parse=s=>{const a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2])};
+const addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((parse(a)-parse(b))/864e5);
+const fmtD=s=>parse(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const fmtS=s=>parse(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const monthName=ym=>{const a=ym.split('-');return new Date(+a[0],+a[1]-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'})};
+const N=n=>Math.round(n||0).toLocaleString('en-US');
+const num=v=>{const x=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(x)?x:0};
+const toast=(m)=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2600)};
+const IC={
+home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+egg:'<path d="M12 3c-3.5 0-6 5-6 9a6 6 0 0 0 12 0c0-4-2.5-9-6-9z"/>',
+daily:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/>',
+money:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',
+more:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
+back:'<path d="M15 5l-7 7 7 7"/>',
+warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+box:'<path d="M4 8l8-5 8 5v8l-8 5-8-5z"/><path d="M4 8l8 5 8-5M12 13v8"/>',
+heart:'<path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/>',
+people:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M18 14c2 .6 3 2.4 3 5"/>',
+trend:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+pie:'<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>',
+doc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+sync:'<path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18 2v4h-4M6 22v-4h4"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'
+};
+const svg=(n,w=22,sw=2)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ---------- data ---------- */
+const KEY='ccf_v1';
+const COLS=['flocks','daily','batches','vacc','treat','tx','tasks','stock','uses','members'];
+function blank(){const c={};COLS.forEach(k=>c[k]=[]);return{s:{},c:c,sync:{url:'',farm:'',pushed:0,metaPushed:0,last:0,err:''},dev:uid('dv')}}
+function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.c){COLS.forEach(k=>{if(!j.c[k])j.c[k]=[]});if(!j.sync)j.sync=blank().sync;if(!j.dev)j.dev=uid('dv');return j}}catch(e){}return blank()}
+let db=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
+const live=c=>db.c[c].filter(r=>!r.del);
+function put(c,r,quiet){r.ua=Date.now();const a=db.c[c];const i=a.findIndex(x=>x.id===r.id);if(i<0)a.push(r);else a[i]=r;save();if(!quiet)queueSync();return r}
+function del(c,id){const r=db.c[c].find(x=>x.id===id);if(r){r.del=1;put(c,r)}}
+const S=()=>db.s;
+const isOwner=()=>S().role==='owner';
+const perm=k=>isOwner()||!!((S().perms||{})[k]);
+const cur=()=>S().currency||'MWK';
+const M=n=>cur()+' '+N(n);
+function saveSettings(){S().ua=Date.now();save();queueSync()}
+
+/* ---------- species, vaccine and incubation templates ---------- */
+const SP=['Broiler','Layer','Local / free-range','Kuroiler','Duck','Guinea fowl','Turkey','Quail'];
+const SPD={'Broiler':{p:'Meat',sell:42,inc:21},'Layer':{p:'Eggs',sell:0,inc:21},'Local / free-range':{p:'Both',sell:120,inc:21},'Kuroiler':{p:'Both',sell:90,inc:21},'Duck':{p:'Both',sell:70,inc:28},'Guinea fowl':{p:'Meat',sell:120,inc:28},'Turkey':{p:'Meat',sell:140,inc:28},'Quail':{p:'Eggs',sell:42,inc:17}};
+const ND1=[7,'Newcastle (first dose)','Eye drop'],GB1=[14,'Gumboro (first dose)','Drinking water'],GB2=[21,'Gumboro booster','Drinking water'],ND2=[28,'Newcastle booster','Drinking water'],VIT=[35,'Vitamins and electrolytes','Drinking water'],POX=[42,'Fowl pox','Wing web'];
+const TPL={'Broiler':[ND1,GB1,GB2,ND2,VIT],'Layer':[ND1,GB1,GB2,ND2,POX,[112,'Newcastle booster','Injection or drinking water']],'Local / free-range':[ND1,GB1,ND2,POX,[120,'Newcastle booster (repeat every 3 months)','Drinking water']],'Kuroiler':[ND1,GB1,ND2,POX,[120,'Newcastle booster (repeat every 3 months)','Drinking water']],'Duck':[[14,'Duck plague (vet advice)','Injection'],[28,'Vitamins and electrolytes','Drinking water']],'Guinea fowl':[ND1,ND2,POX],'Turkey':[ND1,ND2,POX],'Quail':[[14,'Newcastle','Drinking water'],[28,'Vitamins and electrolytes','Drinking water']]};
+const spd=sp=>SPD[sp]||{p:'Both',sell:90,inc:21};
+const PURP=['Eggs','Meat','Both'];
+
+/* ---------- farm calculations ---------- */
+const flocks=()=>live('flocks');
+const isEgg=f=>f.purpose==='Eggs'||f.purpose==='Both';
+const flockById=id=>db.c.flocks.find(f=>f.id===id);
+function curCount(f){const dead=live('daily').filter(d=>d.flockId===f.id).reduce((a,d)=>a+(d.deaths||0),0);const sold=live('tx').filter(t=>t.flockId===f.id&&t.item==='Birds'&&t.type==='in').reduce((a,t)=>a+(t.qty||0),0);return Math.max(0,(f.count||0)-dead-sold)}
+const activeFlocks=()=>flocks().filter(f=>curCount(f)>0);
+const ageOf=(f,on)=>(f.ageDays||0)+diff(on||today(),f.start);
+const ageTxt=d=>d<0?'not yet here':d<70?d+' day'+(d===1?'':'s')+' old':Math.floor(d/7)+' weeks old';
+function dueDate(f,day){return addD(f.start,day-(f.ageDays||0))}
+function genVacc(f){(TPL[f.species]||[]).forEach(t=>{if(t[0]>=(f.ageDays||0))put('vacc',{id:uid('v'),flockId:f.id,name:t[1],day:t[0],method:t[2],due:dueDate(f,t[0]),given:null})})}
+const withdrawal=f=>live('treat').filter(t=>t.flockId===f.id&&t.kind==='treatment'&&t.days>0&&addD(t.date,t.days)>today()).map(t=>addD(t.date,t.days)).sort().pop()||null;
+const vaccDue=()=>live('vacc').filter(v=>!v.given&&v.due<=today()&&(()=>{const f=flockById(v.flockId);return f&&!f.del&&curCount(f)>0})());
+const eggsOn=(d)=>live('daily').filter(r=>r.date===d).reduce((a,r)=>a+(r.eggs||0),0);
+const tdate=t=>t.paidDate||t.date;
+const paid=t=>t.paid!==false;
+const ACC=[['cash','Cash'],['momo','Mobile money'],['bank','Bank']];
+const accName=k=>(ACC.find(a=>a[0]===k)||[0,'Cash'])[1];
+const bal=a=>((S().open||{})[a]||0)+live('tx').filter(t=>t.account===a&&paid(t)).reduce((s,t)=>s+(t.type==='in'?t.amount:-t.amount),0);
+const totalBal=()=>ACC.reduce((s,a)=>s+bal(a[0]),0);
+const monthTx=ym=>live('tx').filter(t=>paid(t)&&tdate(t).slice(0,7)===ym);
+const monthKey=(d)=>(d||today()).slice(0,7);
+const sumT=(a,type)=>a.filter(t=>t.type===type).reduce((s,t)=>s+t.amount,0);
+const profitOf=ym=>{const a=monthTx(ym);return sumT(a,'in')-sumT(a,'out')};
+const SPLIT=[['reinvest','Reinvest in the farm','#E9A820'],['savings','Savings','#9AA89F'],['loan','Loan repayment','#9FD3B4'],['household','Household and personal','#5CA97C'],['bonus',"Workers' bonus",'#14502F']];
+const splitPct=()=>Object.assign({reinvest:40,savings:20,loan:15,household:20,bonus:5},S().split||{});
+
+function forecast(days){
+ const t=today();let layers=0,epd=0;
+ activeFlocks().filter(isEgg).forEach(f=>{const c=curCount(f);const ds=new Set();let e=0;live('daily').filter(r=>r.flockId===f.id&&r.date>addD(t,-7)&&r.date<=t).forEach(r=>{e+=r.eggs||0;ds.add(r.date)});if(e>0){layers+=c;epd+=e/ds.size}});
+ const autoRate=layers?epd/layers*100:0;
+ const rate=S().fRate!=null&&S().fRate!==''?num(S().fRate):autoRate;
+ const perDay=layers*rate/100;
+ const tray=S().tray||30;
+ const eggs=perDay*days,trays=eggs/tray;
+ const ep=S().eggPrice||8000,bp=S().birdPrice||9500;
+ const eggInc=trays*ep;
+ let ready=0;
+ activeFlocks().filter(f=>f.purpose==='Meat').forEach(f=>{if(ageOf(f,addD(t,days))>=(f.sell||spd(f.species).sell))ready+=curCount(f)});
+ const birdInc=ready*bp;
+ const past=live('tx').filter(x=>x.type==='out'&&x.date>addD(t,-28)&&x.date<=t).reduce((s,x)=>s+x.amount,0);
+ const autoCost=past/28*7;
+ const wk=S().fCost!=null&&S().fCost!==''?num(S().fCost):autoCost;
+ const cost=wk/7*days;
+ return{layers,rate,autoRate,eggs,trays,ep,bp,eggInc,ready,birdInc,cost,autoCost,wk,income:eggInc+birdInc,profit:eggInc+birdInc-cost};
+}
+
+/* ---------- sync (Firebase Realtime Database over REST, through the phone) ---------- */
+const pending={};
+window.__http=(id,s,t)=>{const p=pending[id];delete pending[id];if(p){if(s>0)p[0]({s:s,t:t});else p[1](new Error(t||'No connection'))}};
+function http(method,url,body){return new Promise((res,rej)=>{
+ if(window.Android&&Android.http){const id=uid('h');pending[id]=[res,rej];Android.http(id,method,url,body||'')}
+ else fetch(url,{method:method,body:body||undefined}).then(async r=>res({s:r.status,t:await r.text()})).catch(rej)})}
+let syncing=false,syncTimer=null;
+const syncOn=()=>!!(db.sync.url&&db.sync.farm);
+function queueSync(){if(!syncOn())return;clearTimeout(syncTimer);syncTimer=setTimeout(sync,2500)}
+const META=['farmName','currency','tray','split','eggPrice','birdPrice','perms','open','dailyTasks'];
+async function sync(){
+ if(syncing||!syncOn())return;syncing=true;const t0=Date.now();const base=db.sync.url+'/farms/'+db.sync.farm;
+ try{
+  let me=db.c.members.find(m=>m.id===db.dev)||{id:db.dev};me.name=S().name||(isOwner()?'Owner':'Helper');me.role=S().role;me.seen=t0;put('members',me,true);
+  const r=await http('GET',base+'.json');
+  if(r.s!==200)throw new Error(r.s===401||r.s===403?'The database refused access. Check its rules.':'Sync service answered '+r.s);
+  const rem=JSON.parse(r.t)||{};
+  COLS.forEach(c=>{const rm=rem[c]||{};Object.keys(rm).forEach(id=>{const x=rm[id];if(!x||typeof x!=='object')return;x.id=id;const l=db.c[c].find(q=>q.id===id);if(!l)db.c[c].push(x);else if((x.ua||0)>(l.ua||0))db.c[c][db.c[c].indexOf(l)]=x})});
+  if(rem.meta&&!isOwner()&&(rem.meta.ua||0)>(S().mua||0)){META.forEach(k=>{if(rem.meta[k]!==undefined)S()[k]=rem.meta[k]});S().mua=rem.meta.ua}
+  for(const c of COLS){const out=db.c[c].filter(x=>(x.ua||0)>db.sync.pushed);for(const x of out){const rr=await http('PUT',base+'/'+c+'/'+x.id+'.json',JSON.stringify(x));if(rr.s!==200)throw new Error('Could not save to the sync service ('+rr.s+')')}}
+  if(isOwner()&&(S().ua||0)>(db.sync.metaPushed||0)){const m={ua:S().ua||Date.now()};META.forEach(k=>{if(S()[k]!==undefined)m[k]=S()[k]});const rr=await http('PUT',base+'/meta.json',JSON.stringify(m));if(rr.s!==200)throw new Error('Could not save settings ('+rr.s+')');db.sync.metaPushed=S().ua||Date.now()}
+  db.sync.pushed=t0;db.sync.last=Date.now();db.sync.err='';
+ }catch(e){db.sync.err=String(e.message||e)}
+ finally{syncing=false;save();if(!$('#sheet').classList.contains('on')&&(V.n==='home'||V.n==='team'))render()}
+}
+const mkInvite=()=>'CCF-'+btoa(unescape(encodeURIComponent(JSON.stringify({u:db.sync.url,f:db.sync.farm})))).replace(/=+$/,'');
+function readInvite(code){try{const j=JSON.parse(decodeURIComponent(escape(atob(String(code).trim().replace(/^CCF-/,'')))));if(j.u&&j.f)return j}catch(e){}return null}
+function cleanUrl(u){u=String(u||'').trim().replace(/\/+$/,'');return /^https:\/\/[^\s/]+\.[^\s]+$/.test(u)?u:''}
+const syncLabel=()=>{if(!syncOn())return 'This phone only';if(db.sync.err)return 'Not syncing';if(!db.sync.last)return 'Waiting to sync';const m=Math.round((Date.now()-db.sync.last)/6e4);return m<1?'Synced just now':m<60?'Synced '+m+' min ago':'Synced '+Math.round(m/60)+' h ago'};
+setInterval(()=>{if(syncOn())sync()},60000);
+window.__resume=()=>{if(syncOn())sync()};
+
+/* ---------- sheet forms ---------- */
+let F=null;
+function form(o){F=o;F.vals={};o.fields.forEach(f=>{let v=f.v;if(v==null)v=(f.t==='select'||f.t==='chips')&&f.o&&f.o.length?(Array.isArray(f.o[0])?f.o[0][0]:f.o[0]):'';F.vals[f.k]=v});drawForm()}
+function fieldHtml(f,i){
+ const v=F.vals[f.k];
+ if(f.t==='chips'){return `<div class="fchips"><span>${esc(f.l)}</span><div class="chips">${f.o.map(o=>`<button type="button" class="chip${o===v?' on':''}${o==='Other'?' dash':''}" data-v="${esc(o)}" onclick="setV(${i},this.dataset.v)">${esc(o==='Other'?'Other (type your own)':o)}</button>`).join('')}</div></div>`}
+ if(f.t==='select'){return `<label class="f">${esc(f.l)}<select onchange="setV(${i},this.value)">${f.o.map(o=>{const val=Array.isArray(o)?o[0]:o,lab=Array.isArray(o)?o[1]:o;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`}).join('')}</select></label>`}
+ const type=f.t==='date'?'date':'text';
+ return `<label class="f">${esc(f.l)}<input type="${type}" ${f.t==='num'?'inputmode="decimal"':''} value="${esc(v)}" ${f.ph?`placeholder="${esc(f.ph)}"`:''} oninput="F.vals['${f.k}']=this.value"></label>`}
+function drawForm(){
+ const s=$('#sheet');const old=s.querySelector('.pb');const st=old?old.scrollTop:0;s.className='on';
+ s.innerHTML=`<div class="bd" onclick="closeSheet()"></div><div class="pn" role="dialog" aria-modal="true"><div class="ph"><b>${esc(F.title)}</b><button onclick="closeSheet()" aria-label="Close">×</button></div><div class="pb">${F.note?`<p class="nt">${esc(F.note)}</p>`:''}${F.fields.map((f,i)=>(!f.showIf||F.vals[f.showIf[0]]===f.showIf[1])?fieldHtml(f,i):'').join('')}</div><div class="pf">${F.danger?`<button class="btn rd" onclick="F.danger.fn()">${esc(F.danger.label)}</button>`:''}<button class="btn pri" onclick="submitForm()">${esc(F.saveLabel||'Save')}</button></div></div>`;
+ const nb=s.querySelector('.pb');if(nb)nb.scrollTop=st}
+function setV(i,v){const f=F.fields[i];F.vals[f.k]=v;if(f.on)f.on(v,F.vals);drawForm()}
+function closeSheet(){const s=$('#sheet');s.className='';s.innerHTML='';F=null}
+function submitForm(){for(const f of F.fields){if(f.req&&(!f.showIf||F.vals[f.showIf[0]]===f.showIf[1])&&!String(F.vals[f.k]).trim()){toast('Please fill in: '+f.l);return}}const r=F.save(F.vals);if(r!==false)closeSheet()}
+function ask(msg,label,fn,title){form({title:title||'Please confirm',note:msg,fields:[],saveLabel:label||'Yes',save:()=>{fn()}})}
+
+/* ---------- navigation ---------- */
+let V={n:'home'},STACK=[],TAB='home';
+const TABS=()=>[['home','Home','home'],['flocks','Flocks','egg'],['daily','Daily','daily'],...((perm('money'))?[['money','Money','money']]:[]),['more','More','more']];
+function tab(t){TAB=t;STACK=[];V={n:t};render()}
+function go(n,a){STACK.push(V);V={n:n,a:a};render()}
+function back(){if($('#sheet').classList.contains('on')){closeSheet();return}V=STACK.pop()||{n:TAB};render()}
+window.__back=()=>{if($('#sheet').classList.contains('on')){closeSheet();return true}if(STACK.length){back();return true}if(V.n!==TAB||TAB!=='home'){tab('home');return true}return false};
+const hd=(t,right)=>`<div class="hd"><button class="back" onclick="back()" aria-label="Back">${svg('back')}</button><h1 style="flex:1">${esc(t)}</h1>${right||''}</div>`;
+
+function render(){
+ const app=$('#app'),nav=$('#nav');
+ if(!S().role){nav.style.display='none';app.className='nonav';app.innerHTML=vSetup();return}
+ ensureTasks();
+ const top=['home','flocks','daily','money','more'].includes(V.n);
+ nav.style.display='flex';app.className='';
+ nav.innerHTML=TABS().map(t=>`<button class="${t[0]===TAB?'on':''}" onclick="tab('${t[0]}')">${svg(t[2])}${t[1]}</button>`).join('');
+ const fn=VIEWS[V.n]||VIEWS.home;
+ const keep=app.dataset.v===V.n?app.scrollTop:0;
+ app.innerHTML=fn(V.a);app.dataset.v=V.n;app.scrollTop=keep;
+}
+
+/* ---------- setup ---------- */
+let SU={mode:'owner'};
+function vSetup(){
+ const o=SU.mode==='owner';
+ return `<div class="setup"><div class="row"><span class="av" style="background:var(--gr);color:#fff;border-radius:12px;width:40px;height:40px">${svg('egg')}</span><b style="font-size:20px">CHIONA CHICKEN FARM</b></div>
+ <h1 style="margin-top:22px">Set up your farm</h1><div class="mu" style="margin-top:4px;line-height:1.4">One farm record can be shared by every phone on the farm.</div>
+ <div class="seg"><button class="${o?'on':''}" onclick="SU.mode='owner';render()">I own the farm</button><button class="${o?'':'on'}" onclick="SU.mode='helper';render()">I'm a helper</button></div>
+ ${o?`<label class="f">Your name<input id="su_name" value="${esc(SU.name||'')}" placeholder="Precious"></label>
+ <label class="f">Farm name<input id="su_farm" value="${esc(SU.farm||'CHIONA CHICKEN FARM')}"></label>
+ <label class="f">Currency<input id="su_cur" value="MWK"></label>
+ <div class="row" style="gap:10px"><label class="f fl">Eggs per tray<input id="su_tray" inputmode="numeric" value="30"></label><label class="f fl">Daily reminder<input id="su_rem" value="20:00"></label></div>
+ <div class="al g" style="margin-top:14px;display:block;font-size:13px;line-height:1.45;font-weight:600">Sharing between phones is set up later in More, Team and sync. Until then everything is kept on this phone.</div>
+ <button class="btn pri blk" onclick="finishOwner()">Create my farm</button>`
+ :`<label class="f">Your name<input id="su_name" value="${esc(SU.name||'')}" placeholder="Mary"></label>
+ <label class="f">Invite code from the owner<input id="su_code" placeholder="CCF-..."></label>
+ <div class="al g" style="margin-top:14px;display:block;font-size:13px;line-height:1.45;font-weight:600">The owner shares the code from More, Team and sync. You need a data connection the first time.</div>
+ <button class="btn pri blk" onclick="finishHelper()">Join the farm</button>`}</div>`}
+function finishOwner(){
+ SU.name=$('#su_name').value;SU.farm=$('#su_farm').value;
+ const rem=($('#su_rem').value||'20:00').split(':');
+ Object.assign(db.s,{role:'owner',name:(SU.name||'').trim()||'Owner',farmName:(SU.farm||'').trim()||'My farm',currency:($('#su_cur').value||'MWK').trim().toUpperCase(),tray:num($('#su_tray').value)||30,remind:pad(num(rem[0])%24)+':'+pad(num(rem[1])%60),remindOn:true,eggPrice:8000,birdPrice:9500,perms:{records:true,vaccines:true,sales:false,money:false},open:{cash:0,momo:0,bank:0},split:splitPct(),dailyTasks:['Collect eggs','Feed birds','Clean drinkers','Enter today\'s records'],ua:Date.now()});
+ db.sync.farm=Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+ save();applyReminder();tab('home');toast('Your farm is ready')}
+async function finishHelper(){
+ SU.name=$('#su_name').value;const inv=readInvite($('#su_code').value);
+ if(!inv){toast('That invite code does not look right');return}
+ if(!cleanUrl(inv.u)){toast('That invite code has no valid sync address');return}
+ db.sync.url=inv.u;db.sync.farm=inv.f;db.sync.pushed=0;db.sync.last=0;
+ Object.assign(db.s,{role:'helper',name:(SU.name||'').trim()||'Helper',remind:'20:00',remindOn:true,perms:{records:true,vaccines:true,sales:false,money:false},ua:Date.now()});save();
+ toast('Joining…');await sync();
+ if(db.sync.err&&!db.sync.last){const e=db.sync.err;db.s={};db.sync=blank().sync;save();render();toast('Could not join: '+e);return}
+ applyReminder();tab('home');toast('Joined '+(S().farmName||'the farm'))}
+function applyReminder(){const t=(S().remind||'20:00').split(':');if(window.Android&&Android.setReminder)Android.setReminder(num(t[0]),num(t[1]),!!S().remindOn)}
+
+/* ---------- tasks ---------- */
+function ensureTasks(){const t=today();const list=S().dailyTasks||[];if(S().lastTasks===t)return;S().lastTasks=t;list.forEach((x,i)=>{const id='t_'+t+'_'+i;if(!db.c.tasks.find(q=>q.id===id))put('tasks',{id:id,date:t,text:x,done:false},true)});save()}
+function toggleTask(id){const r=db.c.tasks.find(x=>x.id===id);if(r){r.done=!r.done;r.by=S().name;put('tasks',r);render()}}
+function addTask(){form({title:'Add a task for today',fields:[{k:'text',l:'Task',req:1},{k:'time',l:'Time (optional)',ph:'15:00'}],save:v=>{put('tasks',{id:uid('t'),date:today(),text:v.text.trim(),time:v.time.trim(),done:false});render()}})}
+
+/* ---------- views ---------- */
+const VIEWS={};
+VIEWS.home=()=>{
+ const t=today(),fl=activeFlocks();
+ const al=[];
+ vaccDue().sort((a,b)=>a.due.localeCompare(b.due)).slice(0,3).forEach(v=>{const f=flockById(v.flockId);al.push(`<div class="al r"><span class="dot">${svg('warn',18,2.2)}</span><div class="fl"><div class="b">${esc(v.name)} ${v.due<t?'overdue':'due today'}</div><div class="sm">${esc(f.name)} · ${curCount(f)} birds</div></div>${perm('vaccines')?`<button onclick="go('vacc','${f.id}')">Record</button>`:''}</div>`)});
+ live('batches').filter(b=>!b.hatched).forEach(b=>{const d=diff(t,b.set)+1;if(d>=b.days-1){al.push(`<div class="al a"><span class="dot">${svg('egg',18,2.2)}</span><div class="fl"><div class="b">${d<b.days?'Eggs hatch tomorrow':d===b.days?'Eggs hatch today':'Hatch is overdue'}</div><div class="sm">${esc(b.name)} · day ${d} of ${b.days}</div></div><button onclick="go('incu')">Open</button></div>`)}});
+ live('stock').forEach(s=>{if(s.daily>0&&s.qty/s.daily<=3)al.push(`<div class="al a"><span class="dot">${svg('box',18,2.2)}</span><div class="fl"><div class="b">${esc(s.name)} running low</div><div class="sm">${N(s.qty)} ${esc(s.unit||'')} left, about ${Math.floor(s.qty/s.daily)} day(s)</div></div></div>`)});
+ fl.forEach(f=>{const w=withdrawal(f);if(w)al.push(`<div class="al a"><span class="dot">${svg('heart',18,2.2)}</span><div class="fl"><div class="b">${esc(f.name)} on treatment</div><div class="sm">Do not sell until ${fmtS(w)}</div></div></div>`)});
+ const eggs=eggsOn(t),layers=fl.filter(isEgg).reduce((a,f)=>a+curCount(f),0);
+ const birds=fl.reduce((a,f)=>a+curCount(f),0),inc=live('batches').filter(b=>!b.hatched).reduce((a,b)=>a+(b.eggs||0),0);
+ const ym=monthKey();const pr=profitOf(ym),prev=profitOf(monthKey(addD(ym+'-01',-1)));
+ const tasks=live('tasks').filter(x=>x.date===t);
+ const showM=perm('money');
+ return `<div class="top"><div><div class="sm b mu">${esc(S().farmName||'')}</div><h1>Today</h1><div class="sm mu">${fmtD(t)}</div></div>
+ <button class="pill" style="margin-top:4px" onclick="go('team')"><span style="width:8px;height:8px;border-radius:4px;background:${db.sync.err?'var(--rd)':syncOn()?'var(--gr)':'#9AA89F'}"></span>${esc(syncLabel())}</button></div>
+ ${al.join('')}
+ ${!fl.length&&!live('batches').length?`<div class="card" style="text-align:center"><b>Add your first flock</b><div class="sm mu" style="margin:4px 0 10px">Then daily records, vaccines and money start to fill in.</div>${isOwner()?`<button class="btn pri" onclick="addFlock()">Add a flock</button>`:'<div class="sm mu">Ask the owner to add the flocks.</div>'}</div>`:''}
+ <div class="grid"><div class="st"><div class="k">Birds</div><div class="v">${N(birds)}</div><div class="n">${fl.length} flock${fl.length===1?'':'s'}${inc?' · '+N(inc)+' eggs incubating':''}</div></div>
+ <div class="st"><div class="k">Eggs today</div><div class="v">${N(eggs)}</div><div class="n">${layers&&eggs?Math.round(eggs/layers*100)+'% laying rate':'not recorded yet'}</div></div>
+ ${showM?`<div class="st"><div class="k">Cash balance</div><div class="v" style="font-size:18px">${M(totalBal())}</div><div class="n">cash, mobile money, bank</div></div>
+ <div class="st"><div class="k">Profit, ${monthName(ym).split(' ')[0]}</div><div class="v" style="font-size:18px;color:${pr<0?'var(--rd)':'var(--gr)'}">${M(pr)}</div><div class="n">${prev?(pr>=prev?'up':'down')+' on last month':'this month so far'}</div></div>`:''}</div>
+ <div class="row sp" style="margin:16px 0 6px"><div class="cap" style="margin:0">Today's tasks</div><span class="sm b mu">${tasks.filter(x=>x.done).length} of ${tasks.length} done</span></div>
+ <div class="list">${tasks.map(x=>`<label class="li" style="min-height:48px;cursor:pointer"><input type="checkbox" class="chk" ${x.done?'checked':''} onchange="toggleTask('${x.id}')"><span class="fl${x.done?' mu':''}" style="font-weight:600">${esc(x.text)}</span><span class="sm mu">${esc(x.done&&x.by?x.by:x.time||'')}</span></label>`).join('')||'<div class="empty">No tasks yet.</div>'}</div>
+ <button class="btn out blk" onclick="addTask()" style="margin-top:8px">${svg('plus',16,2.6)} Add a task</button>`;
+};
+
+function flockCard(f){
+ const c=curCount(f),w=withdrawal(f),due=vaccDue().some(v=>v.flockId===f.id);
+ let tag=['Healthy',''];if(c===0)tag=['Sold out','g'];else if(due)tag=['Vaccine due','r'];else if(w)tag=['On treatment','a'];
+ const age=ageOf(f);let m3;
+ if(w)m3=[fmtS(w),'safe to sell'];else if(isEgg(f)&&f.purpose==='Eggs'){const e=live('daily').find(r=>r.flockId===f.id&&r.date===today());m3=[e&&c?Math.round(e.eggs/c*100)+'%':'-','laying today']}else{const left=(f.sell||spd(f.species).sell)-age;m3=[left>0?left+' d':'ready','to sell age']}
+ return `<button class="card" style="display:block;width:100%;text-align:left" onclick="editFlock('${f.id}')"><div class="top"><div><h2>${esc(f.name)}</h2><div class="sm mu">${esc(f.species)} · ${esc(f.purpose.toLowerCase())}${f.pen?' · '+esc(f.pen):''}</div></div><span class="tag ${tag[1]}">${tag[0]}</span></div>
+ <div class="row" style="gap:18px;margin-top:10px"><div><div style="font-size:20px;font-weight:800" class="tab">${N(c)}</div><div class="sm mu">birds</div></div><div><div style="font-size:20px;font-weight:800" class="tab">${age<70?Math.max(age,0):Math.floor(age/7)}</div><div class="sm mu">${age<70?'days old':'weeks old'}</div></div><div><div style="font-size:20px;font-weight:800" class="tab">${m3[0]}</div><div class="sm mu">${m3[1]}</div></div></div></button>`}
+let FF='All';
+VIEWS.flocks=()=>{
+ let l=flocks();const sold=l.filter(f=>curCount(f)===0),act=l.filter(f=>curCount(f)>0);
+ const show=FF==='Sold'?sold:FF==='Eggs'?act.filter(isEgg):FF==='Meat'?act.filter(f=>f.purpose==='Meat'||f.purpose==='Both'):act;
+ return `<div class="row sp"><h1>Flocks</h1>${isOwner()?`<button class="btn pri" onclick="addFlock()">${svg('plus',16,2.6)} Add flock</button>`:''}</div>
+ <div class="sm mu" style="margin-top:2px">${N(act.reduce((a,f)=>a+curCount(f),0))} birds · ${act.length} active flock${act.length===1?'':'s'}</div>
+ <div class="chips" style="margin-top:12px">${['All','Eggs','Meat','Sold'].map(x=>`<button class="chip${FF===x?' on':''}" onclick="FF='${x}';render()">${x}</button>`).join('')}</div>
+ ${show.map(flockCard).join('')||`<div class="empty">${FF==='All'?'No flocks yet. Tap Add flock.':'Nothing here.'}</div>`}`};
+
+function addFlock(pre){
+ pre=pre||{};const sp0=pre.species||'Layer';
+ form({title:pre.title||'Add a flock',note:pre.note||("If you enter a cost per bird, it is saved as an expense paid from cash."),fields:[
+ {k:'species',l:'Species (pick any, or type your own)',t:'chips',o:SP.concat(['Other']),v:sp0,on:(v,vals)=>{vals.purpose=spd(v).p;vals.sell=spd(v).sell||''}},
+ {k:'other',l:'Name of the species',showIf:['species','Other'],req:1,ph:'for example Pigeon'},
+ {k:'purpose',l:'Kept for',t:'chips',o:PURP,v:pre.purpose||spd(sp0).p},
+ {k:'name',l:'Flock name',v:pre.name||'',req:1,ph:'for example Layers B'},
+ {k:'count',l:'Number of birds',t:'num',v:pre.count||'',req:1},
+ {k:'start',l:'Date received or hatched',t:'date',v:pre.start||today()},
+ {k:'age',l:'Age on that day (days)',t:'num',v:pre.age==null?'1':pre.age},
+ {k:'cost',l:'Cost per bird ('+cur()+')',t:'num',v:pre.cost||''},
+ {k:'pen',l:'Pen or house',v:pre.pen||''},
+ {k:'sell',l:'Ready to sell at age (days, for meat)',t:'num',v:pre.sell==null?(spd(sp0).sell||''):pre.sell},
+ {k:'vac',l:'Vaccine programme',t:'chips',o:['Start the starting template','No programme'],v:'Start the starting template'}],
+ saveLabel:'Save flock',
+ save:v=>{const sp=v.species==='Other'?v.other.trim():v.species;if(!(num(v.count)>0)){toast('Enter the number of birds');return false}
+  const f={id:uid('f'),name:v.name.trim(),species:sp,purpose:v.purpose,count:num(v.count),start:v.start||today(),ageDays:num(v.age),cost:num(v.cost),pen:v.pen.trim(),sell:num(v.sell),source:pre.source||'bought'};
+  put('flocks',f);if(v.vac!=='No programme')genVacc(f);if(pre.batch){const b=db.c.batches.find(x=>x.id===pre.batch);b.hatched={date:f.start,count:f.count,flockId:f.id};put('batches',b)}
+  if(f.cost>0&&!pre.batch&&confirmCostPrompt)put('tx',{id:uid('x'),type:'out',date:f.start,amount:f.cost*f.count,account:'cash',cat:'Birds and chicks',note:f.name,flockId:f.id,paid:true});
+  toast('Flock saved');if(V.n==='incu'||V.n==='home'||V.n==='flocks')render();else tab('flocks')}})}
+const confirmCostPrompt=true;
+function editFlock(id){const f=flockById(id);if(!f)return;
+ const can=isOwner();
+ form({title:f.name,note:can?'Change the details, or remove the flock if it was added by mistake.':'Only the owner can change flock details.',fields:[{k:'name',l:'Flock name',v:f.name},{k:'pen',l:'Pen or house',v:f.pen||''},{k:'count',l:'Number of birds when it started',t:'num',v:f.count},{k:'sell',l:'Ready to sell at age (days)',t:'num',v:f.sell||''},{k:'purpose',l:'Kept for',t:'chips',o:PURP,v:f.purpose}],saveLabel:can?'Save':'Close',
+ danger:can?{label:'Remove',fn:()=>ask('Remove '+f.name+' and its vaccine plan? Past money records stay.','Remove',()=>{del('flocks',id);live('vacc').filter(v=>v.flockId===id).forEach(v=>del('vacc',v.id));render()})}:null,
+ save:v=>{if(!can)return;f.name=v.name.trim()||f.name;f.pen=v.pen.trim();f.count=num(v.count)||f.count;f.sell=num(v.sell);f.purpose=v.purpose;put('flocks',f);render()}})}
+
+/* daily */
+let DR=null;
+const dId=(fid,d)=>'d_'+fid+'_'+d;
+function initDR(){const t=today();DR={_d:t};activeFlocks().forEach(f=>{const r=db.c.daily.find(d=>d.id===dId(f.id,t)&&!d.del);DR[f.id]=r?{eggs:r.eggs||0,broken:r.broken||0,deaths:r.deaths||0,feed:r.feed||0}:{eggs:0,broken:0,deaths:0,feed:0}})}
+function st(fid,k,d){DR[fid][k]=Math.max(0,num(DR[fid][k])+d);$('#dr_'+fid+'_'+k).value=DR[fid][k]}
+function ed(fid,k,v){DR[fid][k]=Math.max(0,num(v))}
+function copyYest(){const y=addD(today(),-1);activeFlocks().forEach(f=>{const r=live('daily').find(d=>d.flockId===f.id&&d.date===y);if(r){DR[f.id]={eggs:r.eggs||0,broken:r.broken||0,deaths:0,feed:r.feed||0}}});render();toast('Copied yesterday, except deaths')}
+function saveDaily(){let n=0;activeFlocks().forEach(f=>{const d=DR[f.id];if(!d)return;const id=dId(f.id,today());const ex=db.c.daily.find(x=>x.id===id);const any=d.eggs||d.broken||d.deaths||d.feed;if(!any&&!ex)return;if(ex&&!ex.del&&ex.eggs===d.eggs&&ex.broken===d.broken&&ex.deaths===d.deaths&&ex.feed===d.feed)return;put('daily',{id:id,flockId:f.id,date:today(),eggs:d.eggs,broken:d.broken,deaths:d.deaths,feed:d.feed,by:S().name});n++});DR=null;toast(n?'Saved today\'s records':'Nothing changed');tab('home')}
+function stepRow(f,k,label,egg){return `<div class="stepper"><span style="font-weight:600">${label}</span><span class="c"><button aria-label="Less ${label}" onclick="st('${f.id}','${k}',-1)">−</button><input id="dr_${f.id}_${k}" inputmode="numeric" value="${DR[f.id][k]}" onchange="ed('${f.id}','${k}',this.value)" aria-label="${label}"><button class="p" aria-label="More ${label}" onclick="st('${f.id}','${k}',1)">+</button></span></div>`}
+VIEWS.daily=()=>{
+ if(!DR||DR._d!==today())initDR();const fl=activeFlocks();fl.forEach(f=>{if(!DR[f.id])DR[f.id]={eggs:0,broken:0,deaths:0,feed:0}});
+ if(!perm('records'))return `<h1>Daily records</h1><div class="empty">The owner has not given you access to daily records.</div>`;
+ return `<div class="top"><div><h1>Daily records</h1><div class="sm mu">${fmtD(today())} · entering as ${esc(S().name||'')}</div></div><button class="btn out" style="font-size:12px" onclick="copyYest()">Copy yesterday</button></div>
+ ${fl.map(f=>`<div class="card"><div class="row sp"><h2>${esc(f.name)}</h2><span class="sm mu">${N(curCount(f))} birds</span></div>
+ ${isEgg(f)?stepRow(f,'eggs','Eggs collected')+stepRow(f,'broken','Broken or cracked'):''}${stepRow(f,'deaths','Deaths')}${stepRow(f,'feed','Feed given (kg)')}</div>`).join('')||'<div class="empty">No active flocks yet.</div>'}
+ ${fl.length?`<button class="btn pri blk" onclick="saveDaily()">Save today's records</button>`:''}
+ ${perm('sales')&&!perm('money')?`<button class="btn out blk" onclick="saleForm()">Record a sale</button>`:''}`};
+
+/* money */
+function saleForm(pre){pre=pre||{};
+ const fl=activeFlocks();
+ form({title:'Record a sale',fields:[
+ {k:'item',l:'What was sold',t:'chips',o:['Eggs','Birds','Other'],v:'Eggs'},
+ {k:'flock',l:'From which flock',t:'select',o:[['','Not specified']].concat(fl.map(f=>[f.id,f.name]))},
+ {k:'qty',l:'How many (trays of eggs, or birds)',t:'num',req:1},
+ {k:'price',l:'Price for each ('+cur()+')',t:'num',v:'',req:1},
+ {k:'customer',l:'Customer (optional)'},
+ {k:'account',l:'Money went into',t:'select',o:ACC},
+ {k:'paid',l:'Payment',t:'chips',o:['Paid now','Pay later'],v:'Paid now'},
+ {k:'date',l:'Date',t:'date',v:today()}],saveLabel:'Save sale',
+ save:v=>{const qty=num(v.qty),price=num(v.price);if(!(qty>0)||!(price>0)){toast('Enter how many and the price');return false}
+  const f=v.flock?flockById(v.flock):null;const w=f&&withdrawal(f);
+  const doSave=()=>{put('tx',{id:uid('x'),type:'in',date:v.date||today(),amount:qty*price,qty:qty,price:price,item:v.item,account:v.account,cat:'Sales',customer:v.customer.trim(),flockId:v.flock||'',paid:v.paid==='Paid now',note:v.item+(v.item==='Eggs'?' (trays)':''),by:S().name});toast('Sale saved');render()};
+  if(w){closeSheet();ask(f.name+' is under treatment until '+fmtS(w)+'. Selling eggs or meat now can be unsafe. Save this sale anyway?','Save anyway',doSave,'Treatment warning');return false}
+  doSave()}})}
+const EXC=['Feed','Vaccines and medicine','Birds and chicks','Labour','Transport','Water and power','Equipment and repairs','Other'];
+function expenseForm(){const fl=activeFlocks();
+ form({title:'Record an expense',fields:[{k:'cat',l:'Category',t:'select',o:EXC},{k:'amount',l:'Amount ('+cur()+')',t:'num',req:1},{k:'account',l:'Paid from',t:'select',o:ACC},{k:'flock',l:'For which flock',t:'select',o:[['','General (whole farm)']].concat(fl.map(f=>[f.id,f.name]))},{k:'note',l:'Note (optional)'},{k:'date',l:'Date',t:'date',v:today()}],saveLabel:'Save expense',
+ save:v=>{const a=num(v.amount);if(!(a>0)){toast('Enter an amount');return false}put('tx',{id:uid('x'),type:'out',date:v.date||today(),amount:a,account:v.account,cat:v.cat,note:v.note.trim(),flockId:v.flock||'',paid:true,by:S().name});toast('Expense saved');render()}})}
+function markPaid(id){const t=db.c.tx.find(x=>x.id===id);form({title:'Mark as paid',note:t.customer?t.customer+' paid '+M(t.amount):'',fields:[{k:'account',l:'Money went into',t:'select',o:ACC,v:t.account},{k:'date',l:'Date paid',t:'date',v:today()}],saveLabel:'Mark paid',save:v=>{t.paid=true;t.account=v.account;t.paidDate=v.date;put('tx',t);render()}})}
+function checkBuy(){form({title:'Can I afford this?',fields:[{k:'what',l:'What are you buying'},{k:'amt',l:'Cost ('+cur()+')',t:'num',req:1}],saveLabel:'Check',save:v=>{const a=num(v.amt),b=totalBal(),f=forecast(7);setTimeout(()=>{const left=b-a;toast(left>=0?'You can afford it. About '+M(left)+' would be left'+(f.profit<0?' (next week looks tight)':''):'Not enough. You are short by '+M(-left))},50)}})}
+VIEWS.money=()=>{
+ if(!isOwner()&&!perm('money'))return `<h1>Money</h1><div class="empty">The owner has not given you access to money.</div>`;
+ const ym=monthKey(),a=monthTx(ym),owed=live('tx').filter(t=>t.type==='in'&&!paid(t));
+ const rec=live('tx').filter(paid).sort((x,y)=>tdate(y).localeCompare(tdate(x))||(y.ua-x.ua)).slice(0,8);
+ return `<div class="row sp"><h1>Money</h1><span class="tag">${isOwner()?'Owner view':'Helper view'}</span></div>
+ <div class="big"><div class="sm b" style="opacity:.85">Total balance</div><div class="v">${M(totalBal())}</div><div class="row sm" style="gap:14px;margin-top:10px;flex-wrap:wrap">${ACC.map(x=>`<span>${x[1]} ${N(bal(x[0]))}</span>`).join('')}</div></div>
+ <div class="row" style="gap:10px;margin-top:10px"><div class="st fl"><div class="k">In, ${monthName(ym).split(' ')[0]}</div><div class="v" style="font-size:17px">${N(sumT(a,'in'))}</div></div><div class="st fl"><div class="k">Out, ${monthName(ym).split(' ')[0]}</div><div class="v" style="font-size:17px">${N(sumT(a,'out'))}</div></div></div>
+ <div class="row" style="gap:10px;margin-top:10px"><button class="btn pri fl" onclick="saleForm()">Record a sale</button><button class="btn out fl" onclick="expenseForm()">Record an expense</button></div>
+ <div class="cap">Recent</div><div class="list">${rec.map(t=>`<div class="li"><div class="fl"><div class="b" style="font-size:14px">${esc(t.type==='in'?(t.qty?N(t.qty)+' '+(t.item==='Eggs'?'trays of eggs':t.item==='Birds'?'birds':'items'):'Income')+(t.customer?' · '+esc(t.customer):''):(t.cat+(t.note?' · '+esc(t.note):'')))}</div><div class="sm mu">${fmtS(tdate(t))} · ${accName(t.account)}</div></div><b class="tab" style="color:${t.type==='in'?'var(--gr)':'inherit'}">${t.type==='in'?'+ ':'− '}${N(t.amount)}</b></div>`).join('')||'<div class="empty">No money records yet.</div>'}</div>
+ <div class="row" style="gap:10px;margin-top:10px;align-items:stretch"><button class="st fl" style="text-align:left;background:${owed.length?'var(--as)':'#fff'}" onclick="go('cust')"><div class="k" style="color:var(--ai)">Owed to the farm</div><div class="v" style="font-size:17px;color:var(--ai)">${N(owed.reduce((s,t)=>s+t.amount,0))}</div><div class="n" style="color:var(--ai)">${new Set(owed.map(t=>t.customer||'?')).size} customer(s)</div></button><button class="st fl" style="text-align:left" onclick="checkBuy()"><div class="k">Planning to buy?</div><div class="b" style="font-size:14px;margin-top:4px">Check if you can afford it</div></button></div>`};
+VIEWS.cust=()=>{const all=live('tx').filter(t=>t.type==='in'&&t.customer);const by={};all.forEach(t=>{(by[t.customer]=by[t.customer]||{tot:0,owed:0,list:[]});by[t.customer].tot+=t.amount;if(!paid(t)){by[t.customer].owed+=t.amount;by[t.customer].list.push(t)}});
+ const names=Object.keys(by).sort((a,b)=>by[b].owed-by[a].owed||by[b].tot-by[a].tot);
+ return hd('Sales and customers')+(names.map(n=>`<div class="card"><div class="row sp"><h2>${esc(n)}</h2><span class="tag ${by[n].owed?'a':''}">${by[n].owed?'Owes '+N(by[n].owed):'Paid up'}</span></div><div class="sm mu">Bought ${N(by[n].tot)} in total</div>${by[n].list.map(t=>`<div class="row sp" style="margin-top:8px"><span class="sm">${fmtS(t.date)} · ${N(t.amount)}</span><button class="btn out" style="min-height:40px;font-size:12px" onclick="markPaid('${t.id}')">Mark paid</button></div>`).join('')}</div>`).join('')||'<div class="empty">Sales with a customer name appear here.</div>')};
+
+/* vaccines */
+let VF=null;
+function giveVacc(id){const v=db.c.vacc.find(x=>x.id===id);v.given={date:today(),by:S().name};put('vacc',v);render();toast(v.name+' marked as given')}
+function doseForm(fid,id){const v=id?db.c.vacc.find(x=>x.id===id):null;const f=flockById(fid);
+ form({title:v?'Edit dose':'Add a dose',fields:[{k:'name',l:'Vaccine or medicine',v:v?v.name:'',req:1},{k:'day',l:'Give on day of age',t:'num',v:v?v.day:'',req:1},{k:'method',l:'How it is given',v:v?v.method:'Drinking water'}],
+ danger:v?{label:'Delete',fn:()=>{del('vacc',id);closeSheet();render()}}:null,
+ save:x=>{const r=v||{id:uid('v'),flockId:fid,given:null};r.name=x.name.trim();r.day=num(x.day);r.method=x.method.trim();r.due=dueDate(f,r.day);put('vacc',r);render()}})}
+function treatForm(kind){const fl=activeFlocks();if(!fl.length){toast('Add a flock first');return}
+ form({title:kind==='sick'?'Log a sick bird':'Log a treatment',note:kind==='sick'?'Write down what you saw so you can tell the vet.':'Treatments with a withdrawal period block sales of eggs and meat until it ends.',fields:[{k:'flock',l:'Flock',t:'select',o:fl.map(f=>[f.id,f.name]),v:VF||fl[0].id},kind==='sick'?{k:'n',l:'How many birds',t:'num',v:'1'}:{k:'drug',l:'Medicine or antibiotic',req:1},kind==='sick'?{k:'what',l:'What you noticed',req:1}:{k:'days',l:'Withdrawal period (days, ask the vet or read the label)',t:'num',v:'7'},{k:'date',l:'Date',t:'date',v:today()}],
+ save:v=>{put('treat',{id:uid('h'),flockId:v.flock,kind:kind,date:v.date||today(),drug:(v.drug||'').trim(),days:num(v.days),n:num(v.n),what:(v.what||'').trim(),by:S().name});render();toast('Saved')}})}
+VIEWS.vacc=(fid)=>{
+ const fl=activeFlocks();if(!fl.length)return hd('Vaccines and health')+'<div class="empty">Add a flock to see its vaccine plan.</div>';
+ VF=fid||VF;if(!fl.find(f=>f.id===VF))VF=fl[0].id;const f=flockById(VF);
+ const doses=live('vacc').filter(v=>v.flockId===VF).sort((a,b)=>a.day-b.day);const t=today();
+ const hist=live('treat').filter(h=>h.flockId===VF).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
+ const wl=fl.map(x=>[x,withdrawal(x)]).filter(x=>x[1]);
+ return hd('Vaccines and health')+`<div class="chips" style="flex-wrap:nowrap;overflow-x:auto">${fl.map(x=>`<button class="chip${x.id===VF?' on':''}" style="white-space:nowrap" onclick="VF='${x.id}';render()">${esc(x.name)}</button>`).join('')}</div>
+ <div class="row sp" style="margin:14px 0 6px"><div class="cap" style="margin:0">${esc(f.species)} programme · day ${ageOf(f)}</div>${perm('vaccines')?`<button class="btn" style="min-height:44px;color:var(--gr);border:0;background:none" onclick="doseForm('${VF}')">Add dose</button>`:''}</div>
+ <div class="list">${doses.map(v=>{const due=!v.given&&v.due<=t;const dd=diff(v.due,t);return `<div class="li" style="${due?'background:var(--rs)':''}"><span style="width:24px;height:24px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;${v.given?'background:var(--gr);color:#fff':'border:2px solid '+(due?'var(--rd)':'var(--ln)')}">${v.given?svg('plus',0,0)&&'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>':''}</span>
+ <button class="fl" style="border:0;background:none;text-align:left;padding:0;min-height:44px" onclick="${perm('vaccines')?`doseForm('${VF}','${v.id}')`:''}"><div class="b" style="font-size:14px;${due?'color:var(--ri)':!v.given?'':'color:var(--ink)'}">${esc(v.name)}</div><div class="sm ${due?'':'mu'}" style="${due?'color:var(--ri)':''}">Day ${v.day} · ${esc(v.method||'')} · ${v.given?'given '+fmtS(v.given.date)+(v.given.by?' by '+esc(v.given.by):''):due?(v.due<t?'overdue since '+fmtS(v.due):'due today'):'in '+dd+' day'+(dd===1?'':'s')}</div></button>
+ ${due&&perm('vaccines')?`<button class="btn rd" style="min-height:44px;font-size:13px" onclick="giveVacc('${v.id}')">Mark given</button>`:''}</div>`}).join('')||'<div class="empty">No doses in this plan. Tap Add dose.</div>'}</div>
+ ${wl.map(x=>`<div class="al a" style="display:block;margin-top:10px"><div class="b">Treatment withdrawal</div><div class="sm" style="margin-top:2px;line-height:1.4">${esc(x[0].name)}: do not sell eggs or meat until ${fmtS(x[1])}. A sale for this flock shows a warning until then.</div></div>`).join('')}
+ ${perm('vaccines')?`<div class="row" style="gap:10px;margin-top:10px"><button class="btn fl" onclick="treatForm('treatment')">Log a treatment</button><button class="btn fl" onclick="treatForm('sick')">Log a sick bird</button></div>`:''}
+ ${hist.length?`<div class="cap">Health log</div><div class="list">${hist.map(h=>`<div class="li"><div class="fl"><div class="b" style="font-size:14px">${h.kind==='sick'?esc(h.n+' sick: '+h.what):esc(h.drug)}</div><div class="sm mu">${fmtS(h.date)}${h.kind==='treatment'&&h.days?' · withdrawal '+h.days+' days':''}${h.by?' · '+esc(h.by):''}</div></div></div>`).join('')}</div>`:''}
+ <div class="sm mu" style="margin-top:12px;line-height:1.45">These plans are starting templates for each bird type. Check doses and timing with your vet or the vaccine label, and edit them here.</div>`};
+
+/* incubator */
+function setEggs(){
+ const n=live('batches').length+1;
+ form({title:'Set eggs in the incubator',fields:[{k:'species',l:'Species',t:'chips',o:SP.concat(['Other']),v:'Layer',on:(v,vals)=>{vals.days=String(spd(v).inc)}},{k:'other',l:'Name of the species',showIf:['species','Other'],req:1},{k:'name',l:'Batch name',v:'I-'+pad(n)},{k:'eggs',l:'Number of eggs set',t:'num',req:1},{k:'set',l:'Date set',t:'date',v:today()},{k:'days',l:'Days to hatch (change if your bird differs)',t:'num',v:'21'}],saveLabel:'Set eggs',
+ save:v=>{if(!(num(v.eggs)>0)){toast('Enter the number of eggs');return false}put('batches',{id:uid('b'),name:v.name.trim()||'I-'+pad(n),species:v.species==='Other'?v.other.trim():v.species,eggs:num(v.eggs),set:v.set||today(),days:num(v.days)||21,candle:[],hatched:null});render();toast('Eggs set. Day 1 starts '+fmtS(v.set||today()))}})}
+function candleForm(id){const b=db.c.batches.find(x=>x.id===id);const d=diff(today(),b.set)+1;
+ form({title:'Record candling',note:'Count the eggs that are fertile or still alive.',fields:[{k:'day',l:'Day of incubation',t:'num',v:String(d)},{k:'n',l:'Fertile or alive eggs',t:'num',req:1},{k:'note',l:'Note (optional)'}],save:v=>{b.candle=(b.candle||[]).concat([{day:num(v.day),n:num(v.n),date:today(),note:v.note.trim()}]);put('batches',b);render()}})}
+function hatchForm(id){const b=db.c.batches.find(x=>x.id===id);
+ addFlock({title:'Record the hatch',note:'This creates a new flock from the chicks and starts its vaccine plan from day 1.',species:SP.includes(b.species)?b.species:'Other',name:b.name+' chicks',age:0,source:'hatched',batch:id,cost:0});
+ if(!SP.includes(b.species)){F.vals.other=b.species}drawForm()}
+function failBatch(id){const b=db.c.batches.find(x=>x.id===id);ask('Close '+b.name+' with no hatch?','Close batch',()=>{b.hatched={date:today(),count:0,flockId:''};put('batches',b);render()})}
+VIEWS.incu=()=>{
+ const t=today(),all=live('batches').sort((a,b)=>b.set.localeCompare(a.set)),act=all.filter(b=>!b.hatched),past=all.filter(b=>b.hatched);
+ const can=perm('vaccines');
+ const card=b=>{const d=Math.max(1,diff(t,b.set)+1),left=b.days-d,pct=Math.min(100,Math.round(d/b.days*100));const c=b.candle||[];
+  const cd=[7,14].map(x=>x<b.days-3?x:null).filter(Boolean);
+  const steps=cd.map(x=>{const rec=c.filter(y=>y.day>=x-1).sort((p,q)=>p.day-q.day)[0];return [!!rec,'Day '+x+' candling',rec?N(rec.n)+' fertile/alive':d>=x?'to do':'in '+(x-d)+' days']});
+  steps.push([d>=b.days-3,'Day '+(b.days-3)+' stop turning, raise humidity',d>=b.days-3?'now':'in '+(b.days-3-d)+' days']);
+  steps.push([false,'Day '+b.days+' hatch',left<0?Math.abs(left)+' day(s) late':left===0?'today':left===1?'tomorrow':fmtS(addD(b.set,b.days-1))]);
+  const late=d>=b.days-2;
+  return `<div class="card"><div class="top"><div><h2>${esc(b.name)} · ${esc(b.species)} eggs</h2><div class="sm mu">${N(b.eggs)} eggs set on ${fmtS(b.set)}</div></div><span class="tag ${left<=1?'a':''}">${left<0?'Hatch overdue':left===0?'Hatch today':left===1?'Hatch tomorrow':'On track'}</span></div>
+  <div class="row sp" style="margin-top:12px;align-items:baseline"><div style="font-size:26px;font-weight:800" class="tab">Day ${d} <span class="mu" style="font-size:14px;font-weight:600">of ${b.days}</span></div><span class="sm b mu">Hatch ${fmtD(addD(b.set,b.days-1))}</span></div><div class="bar"><i style="width:${pct}%"></i></div>
+  <div style="margin-top:8px">${steps.map(s=>`<div class="row" style="min-height:38px;border-bottom:1px solid var(--ln)"><span style="width:20px;height:20px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;${s[0]===true||(s[0]&&typeof s[0]==='object')?'background:var(--gr);color:#fff':'border:2px solid var(--yo)'}">${s[0]?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>':''}</span><span class="fl b" style="font-size:13px">${s[1]}</span><span class="sm mu">${s[2]}</span></div>`).join('')}</div>
+  <div class="sm mu" style="margin-top:8px;line-height:1.45">Target 37.5 °C. Humidity about 55%, then 65 to 70% for the last 3 days. Check your incubator's manual.</div>
+  ${can?`<div class="row" style="gap:8px;margin-top:10px"><button class="btn fl" onclick="candleForm('${b.id}')">Record candling</button>${late?`<button class="btn yo fl" onclick="hatchForm('${b.id}')">Record hatch</button>`:`<button class="btn fl" onclick="failBatch('${b.id}')">Close batch</button>`}</div>${late?`<button class="btn blk" style="min-height:44px;margin-top:6px" onclick="failBatch('${b.id}')">Close with no hatch</button>`:''}`:''}
+  <div class="sm mu" style="margin-top:6px;line-height:1.4">Recording the hatch makes a new flock and starts its vaccine plan from day 1.</div></div>`};
+ return hd('Incubator',can?`<button class="btn pri" onclick="setEggs()">${svg('plus',16,2.6)} Set eggs</button>`:'')+(act.map(card).join('')||'<div class="empty">No eggs in the incubator. Tap Set eggs to start counting from day 1.</div>')
+ +(past.length?`<div class="cap">Past batches</div><div class="list">${past.map(b=>`<div class="li"><div class="fl"><div class="b" style="font-size:14px">${esc(b.name)} · ${esc(b.species)}</div><div class="sm mu">${fmtS(b.set)} · ${N(b.eggs)} eggs</div></div><span class="tag ${b.hatched.count?'':'g'}">${b.hatched.count?N(b.hatched.count)+' hatched ('+Math.round(b.hatched.count/b.eggs*100)+'%)':'No hatch'}</span></div>`).join('')}</div>`:'')
+ +`<div class="al g" style="display:block;margin-top:12px;font-size:12px;line-height:1.5;font-weight:600">Days to hatch: chicken 21 · quail about 17 · duck, guinea fowl, turkey 28. Other birds differ, so type the days when you set the eggs.</div>`};
+
+/* forecast */
+let FD=7;
+function fcForm(){form({title:'Change the assumptions',note:'Leave a box empty to use the figure worked out from your own records.',fields:[{k:'rate',l:'Laying rate (%)',t:'num',v:S().fRate==null?'':S().fRate},{k:'ep',l:'Egg price per tray ('+cur()+')',t:'num',v:S().eggPrice||8000},{k:'bp',l:'Price per bird for meat flocks ('+cur()+')',t:'num',v:S().birdPrice||9500},{k:'cost',l:'Costs per week ('+cur()+')',t:'num',v:S().fCost==null?'':S().fCost}],save:v=>{S().fRate=String(v.rate).trim()===''?null:num(v.rate);S().eggPrice=num(v.ep)||8000;S().birdPrice=num(v.bp)||9500;S().fCost=String(v.cost).trim()===''?null:num(v.cost);saveSettings();render()}})}
+VIEWS.fc=()=>{const f=forecast(FD),t=today();
+ return hd('Forecast')+`<div class="seg"><button class="${FD===7?'on':''}" onclick="FD=7;render()">Next 7 days</button><button class="${FD===30?'on':''}" onclick="FD=30;render()">Next 30 days</button></div>
+ <div class="card"><div class="sm b mu">Expected profit, ${fmtS(addD(t,1))} to ${fmtS(addD(t,FD))}</div><div style="font-size:30px;font-weight:800;letter-spacing:-.5px;margin-top:2px;color:${f.profit<0?'var(--rd)':'var(--gr)'}" class="tab">${M(f.profit)}</div>
+ <div class="row" style="gap:10px;margin-top:10px"><div class="fl" style="background:var(--gs);border-radius:10px;padding:8px 10px"><div class="sm b" style="color:var(--gi)">Income</div><div class="b tab" style="font-size:16px;color:var(--gi)">${N(f.income)}</div></div><div class="fl" style="background:var(--rs);border-radius:10px;padding:8px 10px"><div class="sm b" style="color:var(--ri)">Costs</div><div class="b tab" style="font-size:16px;color:var(--ri)">${N(f.cost)}</div></div></div></div>
+ <div class="cap">Where it comes from</div><div class="list">
+ <div class="li"><div class="fl"><div class="b" style="font-size:14px">Eggs, about ${N(f.eggs)} (${N(f.trays)} trays)</div><div class="sm mu">${N(f.layers)} laying birds · ${Math.round(f.rate)}% laying · ${N(f.ep)} a tray</div></div><b class="tab">${N(f.eggInc)}</b></div>
+ <div class="li"><div class="fl"><div class="b" style="font-size:14px">Meat birds ready: ${N(f.ready)}</div><div class="sm mu">at ${N(f.bp)} each, once they reach selling age</div></div><b class="tab">${N(f.birdInc)}</b></div>
+ <div class="li"><div class="fl"><div class="b" style="font-size:14px">Feed, medicine, labour, other</div><div class="sm mu">${S().fCost!=null&&S().fCost!==''?'your figure':'from your last 4 weeks'}</div></div><b class="tab">− ${N(f.cost)}</b></div></div>
+ <button class="btn out blk" onclick="fcForm()">Change the assumptions</button>
+ <div class="sm mu" style="margin-top:10px;line-height:1.45">An estimate from your own records. It will be off if prices, laying rate or sales change. It needs a few days of daily records to be useful.</div>`};
+
+/* profit */
+let PM=monthKey();
+function useForm(){form({title:'Record how profit was used',fields:[{k:'b',l:'Used for',t:'select',o:SPLIT.map(s=>[s[0],s[1]])},{k:'amt',l:'Amount ('+cur()+')',t:'num',req:1},{k:'note',l:'Note (optional)'},{k:'date',l:'Date',t:'date',v:today()}],save:v=>{if(!(num(v.amt)>0)){toast('Enter an amount');return false}put('uses',{id:uid('u'),bucket:v.b,amount:num(v.amt),date:v.date||today(),note:v.note.trim()});render()}})}
+function splitForm(){const p=splitPct();form({title:'Change the percentages',note:'They must add up to 100. They apply to each month\'s profit.',fields:SPLIT.map(s=>({k:s[0],l:s[1]+' (%)',t:'num',v:p[s[0]]})),save:v=>{const o={};let sum=0;SPLIT.forEach(s=>{o[s[0]]=num(v[s[0]]);sum+=o[s[0]]});if(Math.round(sum)!==100){toast('Now '+sum+'%. It must be 100%');return false}S().split=o;saveSettings();render()}})}
+const shiftM=n=>{const a=PM.split('-').map(Number);const d=new Date(a[0],a[1]-1+n,1);PM=d.getFullYear()+'-'+pad(d.getMonth()+1);render()};
+VIEWS.profit=()=>{
+ const pr=profitOf(PM),share=Math.max(0,pr),p=splitPct();const mt=monthTx(PM);const eggsM=live('daily').filter(r=>r.date.slice(0,7)===PM).reduce((s,r)=>s+(r.eggs||0),0);
+ const eggInc=mt.filter(t=>t.type==='in'&&t.item==='Eggs').reduce((s,t)=>s+t.amount,0),totInc=sumT(mt,'in'),exp=sumT(mt,'out');
+ const cpe=eggsM&&totInc?exp*(eggInc/totInc)/eggsM:0;const birds=activeFlocks().reduce((a,f)=>a+curCount(f),0);
+ const uses=live('uses').filter(u=>u.date.slice(0,7)===PM);
+ return hd('Profit and its use')+`<div class="row sp"><button class="btn" style="min-height:44px" onclick="shiftM(-1)" aria-label="Earlier month">‹</button><b>${monthName(PM)}</b><button class="btn" style="min-height:44px" onclick="shiftM(1)" aria-label="Later month">›</button></div>
+ <div class="big"><div class="sm b" style="opacity:.85">${monthName(PM).split(' ')[0]} profit to share out</div><div class="v">${M(pr)}</div><div class="pt">${SPLIT.map(s=>`<div style="width:${p[s[0]]}%;background:${s[2]}"></div>`).join('')}</div></div>
+ ${pr<=0?'<div class="al a" style="margin-top:10px;display:block;font-weight:600;font-size:13px">There is no profit to share out for this month yet.</div>':''}
+ <div class="cap">Your split</div><div class="list">${SPLIT.map(s=>{const alloc=share*p[s[0]]/100,spent=uses.filter(u=>u.bucket===s[0]).reduce((a,u)=>a+u.amount,0);return `<div class="li" style="min-height:56px"><span class="sw" style="background:${s[2]}"></span><div class="fl"><div class="b" style="font-size:14px">${s[1]}</div><div class="sm mu">Used ${N(spent)} · left ${N(alloc-spent)}</div></div><div style="text-align:right"><div class="b tab">${N(alloc)}</div><div class="sm mu">${p[s[0]]}%</div></div></div>`}).join('')}</div>
+ <div class="row" style="gap:10px;margin-top:10px"><div class="st fl"><div class="k">Cost per egg</div><div class="v" style="font-size:17px">${eggsM&&cpe?M(cpe):'-'}</div></div><div class="st fl"><div class="k">Profit per bird</div><div class="v" style="font-size:17px">${birds?M(pr/birds):'-'}</div></div></div>
+ <div class="row" style="gap:10px;margin-top:10px"><button class="btn pri fl" onclick="useForm()">Record a use</button><button class="btn out fl" onclick="splitForm()">Change percentages</button></div>
+ <div class="sm mu" style="margin-top:10px;line-height:1.45">The percentages always add up to 100%. Cost per egg and profit per bird are estimates from this month's records.</div>`};
+
+/* stock */
+function stockForm(id){const s=id?db.c.stock.find(x=>x.id===id):null;
+ form({title:s?s.name:'Add a stock item',fields:[{k:'name',l:'Item',v:s?s.name:'',ph:'Layer mash',req:1},{k:'qty',l:'Amount in store now',t:'num',v:s?s.qty:'',req:1},{k:'unit',l:'Unit',v:s?s.unit:'bags'},{k:'daily',l:'Used each day (for the low-stock alert)',t:'num',v:s?s.daily:''}],
+ danger:s?{label:'Delete',fn:()=>{del('stock',id);closeSheet();render()}}:null,
+ save:v=>{const r=s||{id:uid('s')};r.name=v.name.trim();r.qty=num(v.qty);r.unit=v.unit.trim();r.daily=num(v.daily);put('stock',r);render()}})}
+VIEWS.stock=()=>hd('Stock and feed',`<button class="btn pri" onclick="stockForm()">${svg('plus',16,2.6)} Add</button>`)+`<div class="list">${live('stock').map(s=>`<button class="li" onclick="stockForm('${s.id}')"><div class="fl"><div class="b">${esc(s.name)}</div><div class="sm mu">${s.daily?'Uses '+N(s.daily)+' '+esc(s.unit)+' a day':'No daily use set'}</div></div><div style="text-align:right"><div class="b tab">${N(s.qty)} ${esc(s.unit||'')}</div>${s.daily?`<div class="sm ${s.qty/s.daily<=3?'b':'mu'}" style="${s.qty/s.daily<=3?'color:var(--ai)':''}">${Math.floor(s.qty/s.daily)} days left</div>`:''}</div></button>`).join('')||'<div class="empty">Add feed, medicine and other stock. Tap an item to update what is left.</div>'}</div>`;
+
+/* reports & backup */
+function monthReport(ym){const a=monthTx(ym),p=splitPct();const lines=[S().farmName+' – '+monthName(ym),'Income: '+M(sumT(a,'in')),'Expenses: '+M(sumT(a,'out')),'Profit: '+M(profitOf(ym)),'Eggs recorded: '+N(live('daily').filter(r=>r.date.slice(0,7)===ym).reduce((s,r)=>s+(r.eggs||0),0)),'Birds now: '+N(activeFlocks().reduce((s,f)=>s+curCount(f),0)),'','Split of profit:'];SPLIT.forEach(s=>lines.push(' '+s[1]+' '+p[s[0]]+'%: '+N(Math.max(0,profitOf(ym))*p[s[0]]/100)));return lines.join('\n')}
+function shareText(title,text){if(window.Android&&Android.share)Android.share(title,text);else if(navigator.share)navigator.share({title:title,text:text});else toast('Sharing needs the phone app')}
+function csvAll(){const rows=[['date','type','category','item','qty','amount','account','customer','paid','note']];live('tx').sort((a,b)=>tdate(a).localeCompare(tdate(b))).forEach(t=>rows.push([tdate(t),t.type,t.cat||'',t.item||'',t.qty||'',t.amount,accName(t.account),t.customer||'',paid(t)?'yes':'no',t.note||'']));return rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')}
+function restoreForm(){form({title:'Restore from backup',note:'Paste a backup you saved earlier. This replaces everything on this phone.',fields:[{k:'txt',l:'Backup text',req:1}],saveLabel:'Restore',save:v=>{try{const j=JSON.parse(v.txt);if(!j.c||!j.s)throw 0;COLS.forEach(k=>{if(!j.c[k])j.c[k]=[]});j.dev=db.dev;db=j;save();toast('Restored');tab('home')}catch(e){toast('That is not a valid backup');return false}}})}
+VIEWS.reports=()=>hd('Reports and backup')+`<div class="card"><h2>${monthName(PM)} report</h2><pre style="white-space:pre-wrap;font-size:13px;line-height:1.5;margin:8px 0 0">${esc(monthReport(monthKey()))}</pre><button class="btn pri blk" onclick="shareText(S().farmName+' report',monthReport(monthKey()))">Share this month's report</button></div>
+ <div class="card"><h2>Money records</h2><div class="sm mu" style="margin:4px 0 0">Every sale and expense as a table you can open in Excel.</div><button class="btn out blk" onclick="shareText('Money records',csvAll())">Share as CSV</button></div>
+ <div class="card"><h2>Back up everything</h2><div class="sm mu" style="margin:4px 0 0">Save this text somewhere safe, for example in a message to yourself. It restores the whole farm record on a new phone.</div><button class="btn out blk" onclick="shareText('Farm backup',JSON.stringify(db))">Back up</button><button class="btn blk" onclick="restoreForm()" style="margin-top:8px">Restore from a backup</button></div>`;
+
+/* team and sync */
+function syncSetup(){form({title:'Set up sharing',note:'Paste the web address of your free Firebase Realtime Database. It looks like https://your-project-default-rtdb.firebaseio.com',fields:[{k:'url',l:'Database address',v:db.sync.url,req:1}],saveLabel:'Turn on sharing',save:v=>{const u=cleanUrl(v.url);if(!u){toast('That does not look like a web address starting with https://');return false}db.sync.url=u;db.sync.pushed=0;db.sync.metaPushed=0;db.sync.err='';S().ua=Date.now();save();sync();render();toast('Sharing turned on')}})}
+function leaveFarm(){ask('Remove the farm record from this phone and leave the farm?','Leave',()=>{db=blank();save();SU={mode:'owner'};render()})}
+function setPerm(k,v){S().perms=Object.assign({},S().perms,{[k]:v});saveSettings();render()}
+function shareInvite(){if(!syncOn()){toast('Turn on sharing first');return}shareText('Join my farm on CHIONA CHICKEN FARM','Install CHIONA CHICKEN FARM, choose "I\'m a helper" and paste this code:\n\n'+mkInvite())}
+function newCode(){ask('Make a new farm code? Phones that joined with the old code keep working until you remove them, but new helpers need the new code. (Advanced: this starts a new shared record.)','Not now',()=>{},'About codes')}
+VIEWS.team=()=>{
+ const mem=live('members').slice().sort((a,b)=>(a.role==='owner'?0:1)-(b.role==='owner'?0:1)||(a.name||'').localeCompare(b.name||''));
+ const online=mem.filter(m=>Date.now()-(m.seen||0)<864e5).length;
+ const ok=syncOn()&&!db.sync.err&&db.sync.last;
+ return hd('Team and sync')+`<div class="al ${ok?'g':db.sync.err?'r':'a'}" style="display:block;border-radius:16px;padding:14px"><div class="row"><span style="width:10px;height:10px;border-radius:5px;background:currentColor"></span><b>${esc(S().farmName||'The farm')} ${ok?'is in sync':syncOn()?'is not syncing':'is on this phone only'}</b></div>
+ <div class="sm" style="margin-top:4px;line-height:1.45">${syncOn()?(db.sync.err?esc(db.sync.err):esc(syncLabel())+'. Phones that were offline catch up when they get a signal.'):'Turn on sharing so every phone on the farm uses one record.'}</div>${syncOn()?`<button class="btn" style="margin-top:8px;min-height:40px" onclick="sync().then(render)">Sync now</button>`:''}</div>
+ ${mem.length?`<div class="cap">People on this farm · ${mem.length}</div><div class="list">${mem.map(m=>`<div class="li"><span class="av" style="${m.role==='owner'?'background:var(--gr);color:#fff':''}">${esc((m.name||'?')[0].toUpperCase())}</span><div class="fl"><div class="b" style="font-size:14px">${esc(m.name||'Unnamed')}${m.id===db.dev?' (this phone)':''}</div><div class="sm mu">${m.seen?'Last seen '+new Date(m.seen).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div></div><span class="tag ${m.role==='owner'?'':'g'}">${m.role==='owner'?'Owner':'Helper'}</span></div>`).join('')}</div>`:''}
+ ${isOwner()?`<div class="cap">What helpers can do</div><div class="list">${[['records','Enter eggs, feed and deaths'],['vaccines','Mark vaccines and incubator steps'],['sales','Record sales'],['money','See money, profit and forecast']].map(p=>`<label class="li" style="min-height:48px"><span class="fl" style="font-weight:600;font-size:14px">${p[1]}</span><input type="checkbox" class="chk" ${(S().perms||{})[p[0]]?'checked':''} onchange="setPerm('${p[0]}',this.checked)"></label>`).join('')}</div>
+ <div class="card"><div class="sm b mu">Invite a helper</div>${syncOn()?`<div class="row sp" style="margin-top:6px"><div style="font-size:18px;font-weight:800;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis" class="tab fl">${esc(mkInvite().slice(0,14))}…</div><button class="btn pri" onclick="shareInvite()">Share code</button></div><div class="sm mu" style="margin-top:6px;line-height:1.45">The helper installs the app, chooses "I'm a helper" and pastes the code. Anyone with the code can join, so share it only with people you trust.</div>`:`<div class="sm mu" style="margin-top:4px;line-height:1.45">Sharing is off. Turn it on, then you can invite helpers.</div><button class="btn pri blk" onclick="syncSetup()">Set up sharing</button>`}</div>
+ ${syncOn()?`<button class="btn blk" onclick="syncSetup()" style="margin-top:8px">Change sync address</button>`:''}
+ <div class="sm mu" style="margin-top:10px;line-height:1.45">Helper limits are applied by the app on their phone. They stop a helper from seeing or changing the money screens, but are not a bank-level lock.</div>`
+ :`<div class="sm mu" style="margin-top:14px;line-height:1.45">You joined as a helper. The owner decides what you can see and do.</div><button class="btn blk" onclick="leaveFarm()">Leave this farm</button>`}`};
+
+/* settings */
+function settingsForm(){const own=isOwner();
+ form({title:'Settings',fields:[{k:'name',l:'Your name',v:S().name||''}].concat(own?[{k:'farm',l:'Farm name',v:S().farmName||''},{k:'cur',l:'Currency',v:cur()},{k:'tray',l:'Eggs per tray',t:'num',v:S().tray||30},{k:'cash',l:'Cash at start ('+cur()+')',t:'num',v:(S().open||{}).cash||0},{k:'momo',l:'Mobile money at start',t:'num',v:(S().open||{}).momo||0},{k:'bank',l:'Bank at start',t:'num',v:(S().open||{}).bank||0},{k:'tasks',l:'Daily tasks (separate with commas)',v:(S().dailyTasks||[]).join(', ')}]:[]).concat([{k:'rem',l:'Daily reminder time (24 hour)',v:S().remind||'20:00'},{k:'remOn',l:'Daily reminder',t:'chips',o:['On','Off'],v:S().remindOn===false?'Off':'On'}]),
+ save:v=>{S().name=v.name.trim()||S().name;if(own){S().farmName=v.farm.trim()||S().farmName;S().currency=(v.cur||'MWK').trim().toUpperCase();S().tray=num(v.tray)||30;S().open={cash:num(v.cash),momo:num(v.momo),bank:num(v.bank)};S().dailyTasks=v.tasks.split(',').map(x=>x.trim()).filter(Boolean)}
+  const r=v.rem.split(':');S().remind=pad(num(r[0])%24)+':'+pad(num(r[1])%60);S().remindOn=v.remOn!=='Off';saveSettings();applyReminder();render();toast('Settings saved')}})}
+
+/* more */
+VIEWS.more=()=>{const own=isOwner();const due=vaccDue().length,low=live('stock').filter(s=>s.daily>0&&s.qty/s.daily<=3).length,owed=live('tx').filter(t=>t.type==='in'&&!paid(t)).length;
+ const it=(ic,bg,fg,t,sub,act,subCls)=>`<button class="li" style="min-height:56px" onclick="${act}"><span style="width:34px;height:34px;border-radius:10px;background:${bg};color:${fg};display:flex;align-items:center;justify-content:center;flex:none">${svg(ic,18,2.2)}</span><span class="fl b">${t}</span><span class="sm ${subCls||'mu'}">${sub}</span></button>`;
+ return `<h1>More</h1><div class="list" style="margin-top:12px">
+ ${it('egg','var(--as)','var(--ai)','Incubator',live('batches').filter(b=>!b.hatched).length+' batches',"go('incu')")}
+ ${perm('vaccines')?it('heart','var(--rs)','var(--ri)','Vaccines and health',due?due+' due':'all up to date',"go('vacc')",due?'b':'')+'':''}
+ ${it('box','var(--gs)','var(--gi)','Stock and feed',low?low+' low':'',"go('stock')",low?'b':'')}
+ ${perm('money')?it('people','var(--gs)','var(--gi)','Sales and customers',owed?owed+' owe you':'',"go('cust')"):''}
+ ${own?it('trend','var(--gs)','var(--gi)','Forecast','week and month',"go('fc')")+it('pie','var(--gs)','var(--gi)','Profit and its use','the split',"go('profit')")+it('doc','var(--gs)','var(--gi)','Reports and backup','share, restore',"go('reports')"):''}</div>
+ <div class="cap">Farm</div><div class="list">${it('sync','var(--tr)','var(--ink)','Team and sync',syncLabel(),"go('team')")}${it('gear','var(--tr)','var(--ink)','Settings',cur()+' · '+(S().remind||'20:00'),'settingsForm()')}</div>
+ <div class="sm mu" style="margin-top:14px;text-align:center">CHIONA CHICKEN FARM · version 1.0</div>`};
+
+render();
+if(S().role){applyReminder();if(syncOn())sync()}
+</script>
+</body>
+</html>
